@@ -7,14 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASL-Scripts", "ASL-Scripts\
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		INFRA|Any CPU = INFRA|Any CPU
+		TM2STADIUM|Any CPU = TM2STADIUM|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C2524264-48B6-4007-AB9C-EAF72CB040C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C2524264-48B6-4007-AB9C-EAF72CB040C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C2524264-48B6-4007-AB9C-EAF72CB040C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C2524264-48B6-4007-AB9C-EAF72CB040C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2524264-48B6-4007-AB9C-EAF72CB040C3}.INFRA|Any CPU.ActiveCfg = INFRA|Any CPU
+		{C2524264-48B6-4007-AB9C-EAF72CB040C3}.TM2STADIUM|Any CPU.ActiveCfg = TM2STADIUM|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,1 @@
+﻿~~Gift me the game and I'll try to make a script for it, said no one ever lmao~~
