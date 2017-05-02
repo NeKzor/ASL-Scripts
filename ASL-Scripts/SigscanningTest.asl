@@ -18,7 +18,8 @@ init
 									  "8D 44 24 10",			// lea eax,[esp+10]
 									  "50");					// push eax
 	target.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-	var pointer = scanner.Scan(new SignatureScanner(game, module.BaseAddress, module.ModuleMemorySize));
+
+	var pointer = new SignatureScanner(game, module.BaseAddress, module.ModuleMemorySize).Scan(target);
 	var address = game.ReadValue<int>(pointer);
 	var value = game.ReadString((IntPtr)address + 0x1C, 11);	// "[GameCtnApp] init challenge "
 	print("[ASL] : Pointer = 0x" + pointer.ToString("X"));
