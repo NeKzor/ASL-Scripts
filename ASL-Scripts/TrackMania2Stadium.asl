@@ -2,8 +2,7 @@
 {
 	bool LoadingState	: "ManiaPlanet.exe", 0x001323D34, 0x44, 0x228, 0x4B0, 0x4D8, 0x758;
 	string11 MapName	: "ManiaPlanet.exe", 0x00133972C, 0x1C;
-	int CpCounterLap	: "ManiaPlanet.exe", 0x0012F0D84, 0x20C, 0xA4, 0x1C, 0x384, 0x68;
-	int CpCounterTotal	: "ManiaPlanet.exe", 0x001307A4C, 0x34, 0x50, 0x3A0, 0x384, 0x9C;
+	int CpCounter		: "ManiaPlanet.exe", 0x001307A4C, 0x34, 0x50, 0x3A0, 0x384, 0x9C;
 	// For offline mode
 	//bool LoadingState	: "ManiaPlanet.exe", 0x00133A740, 0x14;
 }
@@ -16,8 +15,10 @@ startup
 
 init
 {
+	// Change these variables for other categories
 	vars.FirstMap = "'$fff$sA01'";
 	vars.LastMap = "'$fff$sE05'";
+	vars.TotalCps = 10 * 15;
 }
 
 start
@@ -39,14 +40,11 @@ isLoading
 
 split
 {
-	// Split when finishing all 15 laps on the very last map
-	if (current.MapName == vars.LastMap)
-	{
-		if ((current.CpCounterTotal == (10 * 15) - 1)	// Last check point
-		&& (old.CpCounterLap == 9)						// Transition to finish line
-		&& (current.CpCounterLap == 0))
-			return true;
-	}
+	// Split when finishing all laps on the very last map
+	if ((current.MapName == vars.LastMap)
+	&& (old.CpCounter == vars.TotalCps - 1)
+	&& (current.CpCounter == vars.TotalCps))
+		return true;
 	// Split on map change
 	if (old.MapName != current.MapName)
 	{
