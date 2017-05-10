@@ -1,10 +1,8 @@
-﻿state("ManiaPlanet")	// 1.3.3.0
+﻿state("ManiaPlanet")	// 5/9/2017 12:00:29 PM (0x1989000)
 {
-	bool LoadingState	: "ManiaPlanet.exe", 0x001323D34, 0x44, 0x228, 0x4B0, 0x4D8, 0x758;
-	string11 MapName	: "ManiaPlanet.exe", 0x00133972C, 0x1C;
-	int CpCounter		: "ManiaPlanet.exe", 0x001307A4C, 0x34, 0x50, 0x3A0, 0x384, 0x9C;
-	// For offline mode
-	//bool LoadingState	: "ManiaPlanet.exe", 0x00133A740, 0x14;
+	bool LoadingState	: "ManiaPlanet.exe", 0x0017B1104;
+	string33 MapName	: "ManiaPlanet.exe", 0x00176E450, 0x0;
+	int CpCounter		: "ManiaPlanet.exe", 0x0017B0D20, 0x14, 0xAC;
 }
 
 startup
@@ -15,22 +13,21 @@ startup
 
 init
 {
+	timer.IsGameTimePaused = false;
 	// Change these variables for other categories
-	vars.FirstMap = "'$fff$sA01'";
-	vars.LastMap = "'$fff$sE05'";
+	vars.FirstMap = "[Game] init challenge '$fff$sA01'";
+	vars.LastMap = "[Game] init challenge '$fff$sE05'";
 	vars.TotalCps = 10 * 15;
 }
 
 start
 {
-	return (current.MapName == vars.FirstMap)
-		&& !(current.LoadingState);
+	return (current.MapName == vars.FirstMap) && !(current.LoadingState);
 }
 
 reset
 {
-	return (old.MapName != current.MapName)
-		&& (current.MapName == vars.FirstMap);
+	return (old.MapName != current.MapName) && (current.MapName == vars.FirstMap);
 }
 
 isLoading
@@ -38,22 +35,24 @@ isLoading
 	return current.LoadingState;
 }
 
+
 split
 {
 	// Split when finishing all laps on the very last map
-	if ((current.MapName == vars.LastMap)
-	&& (old.CpCounter == vars.TotalCps - 1)
-	&& (current.CpCounter == vars.TotalCps))
+	if ((current.MapName == vars.LastMap) && (old.CpCounter == vars.TotalCps - 1) && (current.CpCounter == vars.TotalCps))
 		return true;
 	// Split on map change
 	if (old.MapName != current.MapName)
 	{
-		if ((settings["SplitOnMenu"])
-		&& (current.MapName == "'Unnamed', "))
+		if ((settings["SplitOnMenu"]) && (current.MapName.StartsWith("[Game] main menu")) && !(current.MapName.StartsWith("[Game] starting game")))
 			return true;
-		if ((settings["SplitOnMap"])
-		&& (old.MapName == "'Unnamed', "))
+		if ((settings["SplitOnMap"]) && (old.MapName.StartsWith("[Game] main menu")) && !(current.MapName.StartsWith("[Game] starting game")))
 			return true;
 	}
 	return false;
+}
+
+exit
+{
+	timer.IsGameTimePaused = true;
 }
