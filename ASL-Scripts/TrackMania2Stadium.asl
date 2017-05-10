@@ -44,9 +44,9 @@ split
 	// Split on map change
 	if (old.MapName != current.MapName)
 	{
-		if ((settings["SplitOnMenu"]) && (current.MapName.StartsWith("[Game] main menu")) && !(current.MapName.StartsWith("[Game] starting game")))
+		if ((settings["SplitOnMenu"]) && (current.MapName.StartsWith("[Game] main menu")) && (old.MapName.StartsWith("[Game] init challenge")))
 			return true;
-		if ((settings["SplitOnMap"]) && (old.MapName.StartsWith("[Game] main menu")) && !(current.MapName.StartsWith("[Game] starting game")))
+		if ((settings["SplitOnMap"]) && (old.MapName.StartsWith("[Game] main menu")) && (current.MapName.StartsWith("[Game] init challenge")))
 			return true;
 	}
 	return false;
