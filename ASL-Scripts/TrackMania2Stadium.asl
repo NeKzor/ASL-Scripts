@@ -1,8 +1,8 @@
-﻿state("ManiaPlanet")	// 5/9/2017 12:00:29 PM (0x1989000)
+﻿state("ManiaPlanet")	// 05/11/2017 08:47:58 AM (0x198C000)
 {
-	bool LoadingState	: "ManiaPlanet.exe", 0x0017B1104;
-	string33 MapName	: "ManiaPlanet.exe", 0x00176E450, 0x0;
-	int CpCounter		: "ManiaPlanet.exe", 0x0017B0D20, 0x14, 0xAC;
+	bool LoadingState	: "ManiaPlanet.exe", 0x0017B4224;
+	string33 MapName	: "ManiaPlanet.exe", 0x001771550, 0x0;
+	int CpCounter		: "ManiaPlanet.exe", 0x0017B3E40, 0x14, 0xAC;
 }
 
 startup
