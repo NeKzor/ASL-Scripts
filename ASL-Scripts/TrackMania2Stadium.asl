@@ -10,6 +10,11 @@ startup
 
 init
 {
+	timer.IsGameTimePaused = false;
+	vars.FirstMap = "[Game] init challenge '$fff$sA01'";
+	vars.LastMap = "[Game] init challenge '$fff$sE05'";
+	vars.TotalCps = 10 * 15;
+
 	var LoadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00",	// cmp dword ptr [ManiaPlanet.exe+17B4220],00
 											 "8B 0D ?? ?? ?? ??",		// mov ecx,[ManiaPlanet.exe+17B4224]
 											 "75 08",					// jne ManiaPlanet.exe+7E7B77
@@ -53,11 +58,6 @@ init
 		vars.MapName,
 		vars.CpCounter
 	});
-
-	timer.IsGameTimePaused = false;
-	vars.FirstMap = "[Game] init challenge '$fff$sA01'";
-	vars.LastMap = "[Game] init challenge '$fff$sE05'";
-	vars.TotalCps = 10 * 15;
 }
 
 update
