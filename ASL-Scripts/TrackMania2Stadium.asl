@@ -23,7 +23,7 @@ startup
 	
 	vars.Maps = new Dictionary<string, uint>()
 	{
-		{ "[Game] init challenge '$fff$sA01'", 6 },
+		{ "[Game] init challenge '$fff$sA01'", 5 },
 		{ "[Game] init challenge '$fff$sA02'", 5 },
 		{ "[Game] init challenge '$fff$sA03'", 3 },
 		{ "[Game] init challenge '$fff$sA04'", 6 },
@@ -159,7 +159,7 @@ start
 	if (vars.LoadingState.Current)
 		return false;
 	if ((settings["AllFlags"]) || (settings["WhiteFlag"]))
-		return (vars.MapName.Current = "[Game] init challenge '$fff$sA01'");
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sA01'");
 	if (settings["GreenFlag"])
 		return (vars.MapName.Current == "[Game] init challenge '$fff$sB01'");
 	if (settings["BlueFlag"])
@@ -173,7 +173,7 @@ start
 
 reset
 {
-	if (vars.MapName.Old != vars.MapName.Current)
+	if (vars.MapName.Old == vars.MapName.Current)
 		return false;
 	if ((settings["AllFlags"]) || (settings["WhiteFlag"]))
 		return (vars.MapName.Current == "[Game] init challenge '$fff$sA01'");
@@ -204,7 +204,7 @@ split
 				return true;
 		// Finish the last map of a category
 		if (settings["WhiteFlag"])
-			return (vars.MapName.Current = "[Game] init challenge '$fff$sA15'") && (vars.CpCounter.Current == 21);
+			return (vars.MapName.Current == "[Game] init challenge '$fff$sA15'") && (vars.CpCounter.Current == 21);
 		if (settings["GreenFlag"])
 			return (vars.MapName.Current == "[Game] init challenge '$fff$sB15'") && (vars.CpCounter.Current == 15);
 		if (settings["BlueFlag"])
