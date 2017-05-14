@@ -4,16 +4,100 @@
 
 startup
 {
-	settings.Add("SplitOnMenu", true, "Auto split when leaving a map.");
-	settings.Add("SplitOnMap", false, "Auto split before loading screen.");
+	settings.Add("SplitOnMapChange", true, "Auto split on map change:");
+	settings.Add("SplitOnMapExit", true, "When leaving a map.", "SplitOnMapChange");
+	settings.Add("SplitOnMapLoad", false, "When entering a map.", "SplitOnMapChange");
+	settings.Add("Categories", true, "Auto start, reset and end for category:");
+	settings.Add("AllFlags", true, "All Flags", "Categories");
+	settings.Add("WhiteFlag", false, "White Flag", "Categories");
+	settings.Add("GreenFlag", false, "Green Flag", "Categories");
+	settings.Add("BlueFlag", false, "Blue Flag", "Categories");
+	settings.Add("RedFlag", false, "Red Flag.", "Categories");
+	settings.Add("BlackFlag", false, "Black Flag", "Categories");
+	settings.SetToolTip("AllFlags", "Timing starts after loading A01 and ends when finishing all laps on E05.");
+	settings.SetToolTip("WhiteFlag", "Timing starts after loading A01 and ends when finishing all laps on A15.");
+	settings.SetToolTip("GreenFlag", "Timing starts after loading B01 and ends when finishing all laps on B15.");
+	settings.SetToolTip("BlueFlag", "Timing starts after loading C01 and ends when finishing all laps on C15.");
+	settings.SetToolTip("RedFlag", "Timing starts after loading D01 and ends when finishing all laps on D15.");
+	settings.SetToolTip("BlackFlag", "Timing starts after loading E01 and ends when finishing all laps on E05.");
+	
+	vars.Maps = new Dictionary<string, uint>()
+	{
+		{ "[Game] init challenge '$fff$sA01'", 6 },
+		{ "[Game] init challenge '$fff$sA02'", 5 },
+		{ "[Game] init challenge '$fff$sA03'", 3 },
+		{ "[Game] init challenge '$fff$sA04'", 6 },
+		{ "[Game] init challenge '$fff$sA05'", 12 },
+		{ "[Game] init challenge '$fff$sA06'", 5 },
+		{ "[Game] init challenge '$fff$sA07'", 5 },
+		{ "[Game] init challenge '$fff$sA08'", 1 },
+		{ "[Game] init challenge '$fff$sA09'", 6 },
+		{ "[Game] init challenge '$fff$sA10'", 18 },
+		{ "[Game] init challenge '$fff$sA11'", 5 },
+		{ "[Game] init challenge '$fff$sA12'", 6 },
+		{ "[Game] init challenge '$fff$sA13'", 2 },
+		{ "[Game] init challenge '$fff$sA14'", 4 },
+		{ "[Game] init challenge '$fff$sA15'", 21 },
+		{ "[Game] init challenge '$fff$sB01'", 7 },
+		{ "[Game] init challenge '$fff$sB02'", 5 },
+		{ "[Game] init challenge '$fff$sB03'", 3 },
+		{ "[Game] init challenge '$fff$sB04'", 6 },
+		{ "[Game] init challenge '$fff$sB05'", 21 },
+		{ "[Game] init challenge '$fff$sB06'", 9 },
+		{ "[Game] init challenge '$fff$sB07'", 6 },
+		{ "[Game] init challenge '$fff$sB08'", 5 },
+		{ "[Game] init challenge '$fff$sB09'", 6 },
+		{ "[Game] init challenge '$fff$sB10'", 18 },
+		{ "[Game] init challenge '$fff$sB11'", 6 },
+		{ "[Game] init challenge '$fff$sB12'", 8 },
+		{ "[Game] init challenge '$fff$sB13'", 4 },
+		{ "[Game] init challenge '$fff$sB14'", 7 },
+		{ "[Game] init challenge '$fff$sB15'", 15 },
+		{ "[Game] init challenge '$fff$sC01'", 10 },
+		{ "[Game] init challenge '$fff$sC02'", 13 },
+		{ "[Game] init challenge '$fff$sC03'", 3 },
+		{ "[Game] init challenge '$fff$sC04'", 8 },
+		{ "[Game] init challenge '$fff$sC05'", 21 },
+		{ "[Game] init challenge '$fff$sC06'", 7 },
+		{ "[Game] init challenge '$fff$sC07'", 6 },
+		{ "[Game] init challenge '$fff$sC08'", 4 },
+		{ "[Game] init challenge '$fff$sC09'", 9 },
+		{ "[Game] init challenge '$fff$sC10'", 24 },
+		{ "[Game] init challenge '$fff$sC11'", 8 },
+		{ "[Game] init challenge '$fff$sC12'", 9 },
+		{ "[Game] init challenge '$fff$sC13'", 12 },
+		{ "[Game] init challenge '$fff$sC14'", 7 },
+		{ "[Game] init challenge '$fff$sC15'", 24 },
+		{ "[Game] init challenge '$fff$sD01'", 7 },
+		{ "[Game] init challenge '$fff$sD02'", 6 },
+		{ "[Game] init challenge '$fff$sD03'", 6 },
+		{ "[Game] init challenge '$fff$sD04'", 7 },
+		{ "[Game] init challenge '$fff$sD05'", 18 },
+		{ "[Game] init challenge '$fff$sD06'", 10 },
+		{ "[Game] init challenge '$fff$sD07'", 11 },
+		{ "[Game] init challenge '$fff$sD08'", 3 },
+		{ "[Game] init challenge '$fff$sD09'", 8 },
+		{ "[Game] init challenge '$fff$sD10'", 30 },
+		{ "[Game] init challenge '$fff$sD11'", 12 },
+		{ "[Game] init challenge '$fff$sD12'", 12 },
+		{ "[Game] init challenge '$fff$sD13'", 4 },
+		{ "[Game] init challenge '$fff$sD14'", 13 },
+		{ "[Game] init challenge '$fff$sD15'", 90 },
+		{ "[Game] init challenge '$fff$sE01'", 11 },
+		{ "[Game] init challenge '$fff$sE02'", 16 },
+		{ "[Game] init challenge '$fff$sE03'", 25 },
+		{ "[Game] init challenge '$fff$sE04'", 25 },
+		{ "[Game] init challenge '$fff$sE05'", 150 }
+	};
+
+	settings.Add("SplitOnMapFinish", false, "Auto split when finishing a map.");
+	foreach (var map in vars.Maps)
+		settings.Add(map.Key, true, map.Key.Substring(29, 3), "SplitOnMapFinish");
 }
 
 init
 {
 	timer.IsGameTimePaused = false;
-	vars.FirstMap = "[Game] init challenge '$fff$sA01'";
-	vars.LastMap = "[Game] init challenge '$fff$sE05'";
-	vars.TotalCps = 10 * 15;
 
 	var LoadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00",	// cmp dword ptr [ManiaPlanet.exe+17B4220],00
 											 "8B 0D ?? ?? ?? ??",		// mov ecx,[ManiaPlanet.exe+17B4224]
@@ -65,33 +149,70 @@ update
 	vars.Watchers.UpdateAll(game);
 }
 
-start
-{
-	return (vars.MapName.Current == vars.FirstMap) && !(vars.LoadingState.Current);
-}
-
-reset
-{
-	return (vars.MapName.Old != vars.MapName.Current) && (vars.MapName.Current == vars.FirstMap);
-}
-
 isLoading
 {
 	return vars.LoadingState.Current;
 }
 
+start
+{
+	if (vars.LoadingState.Current)
+		return false;
+	if ((settings["AllFlags"]) || (settings["WhiteFlag"]))
+		return (vars.MapName.Current = "[Game] init challenge '$fff$sA01'");
+	if (settings["GreenFlag"])
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sB01'");
+	if (settings["BlueFlag"])
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sC01'");
+	if (settings["RedFlag"])
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sD01'");
+	if (settings["BlackFlag"])
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sE01'");
+	return false;
+}
+
+reset
+{
+	if (vars.MapName.Old != vars.MapName.Current)
+		return false;
+	if ((settings["AllFlags"]) || (settings["WhiteFlag"]))
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sA01'");
+	if (settings["GreenFlag"])
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sB01'");
+	if (settings["BlueFlag"])
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sC01'");
+	if (settings["RedFlag"])
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sD01'");
+	if (settings["BlackFlag"])
+		return (vars.MapName.Current == "[Game] init challenge '$fff$sE01'");
+	return false;
+}
+
 split
 {
-	// Split when finishing all laps on the very last map
-	if ((vars.MapName.Current == vars.LastMap) && (vars.CpCounter.Old == vars.TotalCps - 1) && (vars.CpCounter.Current == vars.TotalCps))
+	// Map change, doesn't split on game crash or game restart
+	if ((settings["SplitOnMapExit"]) && (vars.MapName.Current.StartsWith("[Game] main menu")) && (vars.MapName.Old.StartsWith("[Game] init challenge")))
 		return true;
-	// Split on map change
-	if (vars.MapName.Old != vars.MapName.Current)
+	if ((settings["SplitOnMapLoad"]) && (vars.MapName.Old.StartsWith("[Game] main menu")) && (vars.MapName.Current.StartsWith("[Game] init challenge")))
+		return true;
+	// Map completion, finish line
+	if (vars.CpCounter.Current != vars.CpCounter.Old)
 	{
-		if ((settings["SplitOnMenu"]) && (vars.MapName.Current.StartsWith("[Game] main menu")) && (vars.MapName.Old.StartsWith("[Game] init challenge")))
-			return true;
-		if ((settings["SplitOnMap"]) && (vars.MapName.Old.StartsWith("[Game] main menu")) && (vars.MapName.Current.StartsWith("[Game] init challenge")))
-			return true;
+		// Finish any map
+		if (settings[vars.MapName.Current])
+			if (vars.CpCounter.Current == vars.Maps[vars.MapName.Current])
+				return true;
+		// Finish the last map of a category
+		if (settings["WhiteFlag"])
+			return (vars.MapName.Current = "[Game] init challenge '$fff$sA15'") && (vars.CpCounter.Current == 21);
+		if (settings["GreenFlag"])
+			return (vars.MapName.Current == "[Game] init challenge '$fff$sB15'") && (vars.CpCounter.Current == 15);
+		if (settings["BlueFlag"])
+			return (vars.MapName.Current == "[Game] init challenge '$fff$sC15'") && (vars.CpCounter.Current == 24);
+		if (settings["RedFlag"])
+			return (vars.MapName.Current == "[Game] init challenge '$fff$sD15'") && (vars.CpCounter.Current == 90);
+		if ((settings["BlackFlag"]) || (settings["AllFlags"]))
+			return (vars.MapName.Current == "[Game] init challenge '$fff$sE05'") && (vars.CpCounter.Current == 150);
 	}
 	return false;
 }
