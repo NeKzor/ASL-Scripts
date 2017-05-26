@@ -10,38 +10,38 @@ startup
 	settings.Add("Categories", true, "Auto start, reset and end for category:");
 	settings.Add("AllEnvironments", true, "All Environments", "Categories");
 	settings.Add("AllFlagsAllEnvironments", true, "All Flags", "AllEnvironments");
-	settings.Add("WhiteFlagAllEnvironments", false, "White Flag", "AllEnvironments");
-	settings.Add("GreenFlagAllEnvironments", false, "Green Flag", "AllEnvironments");
-	settings.Add("BlueFlagAllEnvironments", false, "Blue Flag", "AllEnvironments");
-	settings.Add("RedFlagAllEnvironments", false, "Red Flag.", "AllEnvironments");
-	settings.Add("BlackFlagAllEnvironments", false, "Black Flag", "AllEnvironments");
+	settings.Add("WhiteFlagAllEnvironments", false, "White Flags", "AllEnvironments");
+	settings.Add("GreenFlagAllEnvironments", false, "Green Flags", "AllEnvironments");
+	settings.Add("BlueFlagAllEnvironments", false, "Blue Flags", "AllEnvironments");
+	settings.Add("RedFlagAllEnvironments", false, "Red Flags", "AllEnvironments");
+	settings.Add("BlackFlagAllEnvironments", false, "Black Flags", "AllEnvironments");
 	settings.Add("RollercoasterLagoon", false, "Rollercoaster Lagoon", "Categories");
 	settings.Add("AllFlagsRollercoasterLagoon", false, "All Flags", "RollercoasterLagoon");
 	settings.Add("WhiteFlagRollercoasterLagoon", false, "White Flag", "RollercoasterLagoon");
 	settings.Add("GreenFlagRollercoasterLagoon", false, "Green Flag", "RollercoasterLagoon");
 	settings.Add("BlueFlagRollercoasterLagoon", false, "Blue Flag", "RollercoasterLagoon");
-	settings.Add("RedFlagRollercoasterLagoon", false, "Red Flag.", "RollercoasterLagoon");
+	settings.Add("RedFlagRollercoasterLagoon", false, "Red Flag", "RollercoasterLagoon");
 	settings.Add("BlackFlagRollercoasterLagoon", false, "Black Flag", "RollercoasterLagoon");
 	settings.Add("InternationalStadium", false, "International Stadium", "Categories");
 	settings.Add("AllFlagsInternationalStadium", false, "All Flags", "InternationalStadium");
 	settings.Add("WhiteFlagInternationalStadium", false, "White Flag", "InternationalStadium");
 	settings.Add("GreenFlagInternationalStadium", false, "Green Flag", "InternationalStadium");
 	settings.Add("BlueFlagInternationalStadium", false, "Blue Flag", "InternationalStadium");
-	settings.Add("RedFlagInternationalStadium", false, "Red Flag.", "InternationalStadium");
+	settings.Add("RedFlagInternationalStadium", false, "Red Flag", "InternationalStadium");
 	settings.Add("BlackFlagInternationalStadium", false, "Black Flag", "InternationalStadium");
 	settings.Add("CanyonGrandDrift", false, "Canyon Grand Drift", "Categories");
 	settings.Add("AllFlagsCanyonGrandDrift", false, "All Flags", "CanyonGrandDrift");
 	settings.Add("WhiteFlagCanyonGrandDrift", false, "White Flag", "CanyonGrandDrift");
 	settings.Add("GreenFlagCanyonGrandDrift", false, "Green Flag", "CanyonGrandDrift");
 	settings.Add("BlueFlagCanyonGrandDrift", false, "Blue Flag", "CanyonGrandDrift");
-	settings.Add("RedFlagCanyonGrandDrift", false, "Red Flag.", "CanyonGrandDrift");
+	settings.Add("RedFlagCanyonGrandDrift", false, "Red Flag", "CanyonGrandDrift");
 	settings.Add("BlackFlagCanyonGrandDrift", false, "Black Flag", "CanyonGrandDrift");
 	settings.Add("ValleyDownAndDirty", false, "Valley Down & Dirty", "Categories");
 	settings.Add("AllFlagsValleyDownAndDirty", false, "All Flags", "ValleyDownAndDirty");
 	settings.Add("WhiteFlagValleyDownAndDirty", false, "White Flag", "ValleyDownAndDirty");
 	settings.Add("GreenFlagValleyDownAndDirty", false, "Green Flag", "ValleyDownAndDirty");
 	settings.Add("BlueFlagValleyDownAndDirty", false, "Blue Flag", "ValleyDownAndDirty");
-	settings.Add("RedFlagValleyDownAndDirty", false, "Red Flag.", "ValleyDownAndDirty");
+	settings.Add("RedFlagValleyDownAndDirty", false, "Red Flag", "ValleyDownAndDirty");
 	settings.Add("BlackFlagValleyDownAndDirty", false, "Black Flag", "ValleyDownAndDirty");
 
 	vars.Maps = new Dictionary<string, uint>()
@@ -473,67 +473,67 @@ split
 		if (settings["AllEnvironments"])
 		{
 			if (settings["WhiteFlagAllEnvironments"])
-				return (vars.MapName.Current == "[Game] init challenge '040'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '040'") && (vars.CpCounter.Current == 21);
 			if (settings["GreenFlagAllEnvironments"])
-				return (vars.MapName.Current == "[Game] init challenge '080'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '080'") && (vars.CpCounter.Current == 24);
 			if (settings["BlueFlagAllEnvironments"])
-				return (vars.MapName.Current == "[Game] init challenge '120'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '120'") && (vars.CpCounter.Current == 24);
 			if (settings["RedFlagAllEnvironments"])
-				return (vars.MapName.Current == "[Game] init challenge '160'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '160'") && (vars.CpCounter.Current == 33);
 			if ((settings["BlackFlagAllEnvironments"]) || (settings["AllFlagsAllEnvironments"]))
-				return (vars.MapName.Current == "[Game] init challenge '200'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '200'") && (vars.CpCounter.Current == 17);
 		}
 		if (settings["RollercoasterLagoon"])
 		{
 			if (settings["WhiteFlagRollercoasterLagoon"])
-				return (vars.MapName.Current == "[Game] init challenge '030'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '030'") && (vars.CpCounter.Current == 21);
 			if (settings["GreenFlagRollercoasterLagoon"])
-				return (vars.MapName.Current == "[Game] init challenge '070'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '070'") && (vars.CpCounter.Current == 24);
 			if (settings["BlueFlagRollercoasterLagoon"])
-				return (vars.MapName.Current == "[Game] init challenge '110'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '110'") && (vars.CpCounter.Current == 39);
 			if (settings["RedFlagRollercoasterLagoon"])
-				return (vars.MapName.Current == "[Game] init challenge '150'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '150'") && (vars.CpCounter.Current == 24);
 			if ((settings["BlackFlagRollercoasterLagoon"]) || (settings["AllFlagsRollercoasterLagoon"]))
-				return (vars.MapName.Current == "[Game] init challenge '190'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '190'") && (vars.CpCounter.Current == 18);
 		}
 		if (settings["InternationalStadium"])
 		{
 			if (settings["WhiteFlagInternationalStadium"])
-				return (vars.MapName.Current == "[Game] init challenge '040'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '040'") && (vars.CpCounter.Current == 21);
 			if (settings["GreenFlagInternationalStadium"])
-				return (vars.MapName.Current == "[Game] init challenge '080'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '080'") && (vars.CpCounter.Current == 24);
 			if (settings["BlueFlagInternationalStadium"])
-				return (vars.MapName.Current == "[Game] init challenge '120'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '120'") && (vars.CpCounter.Current == 24);
 			if (settings["RedFlagInternationalStadium"])
-				return (vars.MapName.Current == "[Game] init challenge '160'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '160'") && (vars.CpCounter.Current == 33);
 			if ((settings["BlackFlagInternationalStadium"]) || (settings["AllFlagsInternationalStadium"]))
-				return (vars.MapName.Current == "[Game] init challenge '200'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '200'") && (vars.CpCounter.Current == 17);
 		}
 		if (settings["CanyonGrandDrift"])
 		{
 			if (settings["WhiteFlagCanyonGrandDrift"])
-				return (vars.MapName.Current == "[Game] init challenge '010'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '010'") && (vars.CpCounter.Current == 12);
 			if (settings["GreenFlagCanyonGrandDrift"])
-				return (vars.MapName.Current == "[Game] init challenge '050'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '050'") && (vars.CpCounter.Current == 21);
 			if (settings["BlueFlagCanyonGrandDrift"])
-				return (vars.MapName.Current == "[Game] init challenge '090'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '090'") && (vars.CpCounter.Current == 33);
 			if (settings["RedFlagCanyonGrandDrift"])
-				return (vars.MapName.Current == "[Game] init challenge '130'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '130'") && (vars.CpCounter.Current == 27);
 			if ((settings["BlackFlagCanyonGrandDrift"]) || (settings["AllFlagsCanyonGrandDrift"]))
-				return (vars.MapName.Current == "[Game] init challenge '170'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '170'") && (vars.CpCounter.Current == 17);
 		}
 		if (settings["ValleyDownAndDirty"])
 		{
 			if (settings["WhiteFlagValleyDownAndDirty"])
-				return (vars.MapName.Current == "[Game] init challenge '020'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '020'") && (vars.CpCounter.Current == 12);
 			if (settings["GreenFlagValleyDownAndDirty"])
-				return (vars.MapName.Current == "[Game] init challenge '060'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '060'") && (vars.CpCounter.Current == 30);
 			if (settings["BlueFlagValleyDownAndDirty"])
-				return (vars.MapName.Current == "[Game] init challenge '100'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '100'") && (vars.CpCounter.Current == 33);
 			if (settings["RedFlagValleyDownAndDirty"])
-				return (vars.MapName.Current == "[Game] init challenge '140'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '140'") && (vars.CpCounter.Current == 30);
 			if ((settings["BlackFlagValleyDownAndDirty"]) || (settings["AllFlagsValleyDownAndDirty"]))
-				return (vars.MapName.Current == "[Game] init challenge '180'") && (vars.CpCounter.Current == 999);
+				return (vars.MapName.Current == "[Game] init challenge '180'") && (vars.CpCounter.Current == 12);
 		}
 	}
 	return false;
