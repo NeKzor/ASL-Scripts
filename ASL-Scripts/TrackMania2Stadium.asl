@@ -166,15 +166,13 @@ update
 			if (!vars.MapName.Current.StartsWith("[Game]"))
 				vars.GameRestart = !vars.TryInit(game, vars.Module);
 	}
-	else if (modules.Length == 122)
-		vars.Init = vars.TryInit(game, vars.Module);
+	else if ((vars.TryInit(game, vars.Module)) && (!string.IsNullOrEmpty(vars.MapName.Current)))
+		vars.Init = vars.MapName.Current.StartsWith("[Game]");
 }
 
 isLoading
 {
-	if (!vars.Init || vars.GameRestart)
-		return true;
-	return vars.LoadingState.Current;
+	return (vars.LoadingState.Current) || (!vars.Init) || (vars.GameRestart);
 }
 
 start

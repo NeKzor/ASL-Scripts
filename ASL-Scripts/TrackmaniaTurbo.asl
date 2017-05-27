@@ -48,7 +48,7 @@ startup
 	{
 		{ "[Game] init challenge '001'", 4 },
 		{ "[Game] init challenge '002'", 5 },
-		{ "[Game] init challenge '003'", 5 },
+		{ "[Game] init challenge '003'", 6 },
 		{ "[Game] init challenge '004'", 4 },
 		{ "[Game] init challenge '005'", 12 },
 		{ "[Game] init challenge '006'", 4 },
@@ -98,7 +98,7 @@ startup
 		{ "[Game] init challenge '050'", 21 },
 		{ "[Game] init challenge '051'", 5 },
 		{ "[Game] init challenge '052'", 5 },
-		{ "[Game] init challenge '053'", 6 },
+		{ "[Game] init challenge '053'", 8 },
 		{ "[Game] init challenge '054'", 6 },
 		{ "[Game] init challenge '055'", 24 },
 		{ "[Game] init challenge '056'", 5 },
@@ -118,7 +118,7 @@ startup
 		{ "[Game] init challenge '070'", 24 },
 		{ "[Game] init challenge '071'", 7 },
 		{ "[Game] init challenge '072'", 6 },
-		{ "[Game] init challenge '073'", 6 },
+		{ "[Game] init challenge '073'", 8 },
 		{ "[Game] init challenge '074'", 9 },
 		{ "[Game] init challenge '075'", 21 },
 		{ "[Game] init challenge '076'", 7 },
@@ -197,7 +197,7 @@ startup
 		{ "[Game] init challenge '149'", 7 },
 		{ "[Game] init challenge '150'", 24 },
 		{ "[Game] init challenge '151'", 10 },
-		{ "[Game] init challenge '152'", 10 },
+		{ "[Game] init challenge '152'", 11 },
 		{ "[Game] init challenge '153'", 14 },
 		{ "[Game] init challenge '154'", 8 },
 		{ "[Game] init challenge '155'", 21 },
@@ -324,7 +324,7 @@ update
 
 isLoading
 {
-	return vars.LoadingState.Current || !vars.Init;
+	return (vars.LoadingState.Current) || (!vars.Init);
 }
 
 start
