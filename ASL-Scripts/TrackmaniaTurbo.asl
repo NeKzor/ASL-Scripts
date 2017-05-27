@@ -259,7 +259,6 @@ startup
 	vars.CpCounter = new MemoryWatcher<int>(IntPtr.Zero);
 	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameproc, module) =>
 	{
-		print("SCANNING");
 		var LoadingTarget = new SigScanTarget(1, "A1 ?? ?? ?? ??",			// mov eax,[TrackmaniaTurbo.exe+181BB10]
 												 "85 C0",					// test eax,eax
 												 "75 0C",					// jne TrackmaniaTurbo.exe+7C92A5
