@@ -48,7 +48,7 @@ startup
 	{
 		{ "[Game] init challenge '001'", 4 },
 		{ "[Game] init challenge '002'", 5 },
-		{ "[Game] init challenge '003'", 6 },
+		{ "[Game] init challenge '003'", 5 },
 		{ "[Game] init challenge '004'", 4 },
 		{ "[Game] init challenge '005'", 12 },
 		{ "[Game] init challenge '006'", 4 },
@@ -251,64 +251,80 @@ startup
 	settings.Add("SplitOnMapFinish", false, "Auto split when finishing a map.");
 	foreach (var map in vars.Maps)
 		settings.Add(map.Key, true, map.Key.Substring(23, 3), "SplitOnMapFinish");
+
+	vars.Init = false;
+	vars.Watchers = new MemoryWatcherList();
+	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
+	vars.MapName = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 27);
+	vars.CpCounter = new MemoryWatcher<int>(IntPtr.Zero);
+	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameproc, module) =>
+	{
+		var LoadingTarget = new SigScanTarget(6, "8B 54 24 04",				// mov edx,[esp+04]
+												 "89 15 ?? ?? ?? ??",		// mov [TrackmaniaTurbo.exe+181BB14],edx
+												 "85 C0",					// test eax,eax
+												 "75 04");					// jne TrackmaniaTurbo.exe+7C92BC
+
+		var MapTarget = new SigScanTarget(6, "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+30B0
+											 "A1 ?? ?? ?? ??",				// mov eax,[TrackmaniaTurbo.exe+17DAED8]
+											 "C6 04 38 ??",					// mov byte ptr [eax+edi],00
+											 "89 3D ?? ?? ?? ??");			// mov [TrackmaniaTurbo.exe+17DAEDC],edi
+
+		var CpsTarget = new SigScanTarget(12, "89 41 04",					// mov [ecx+04],eax
+											  "C7 41 08 ?? ?? ?? ??",		// mov [ecx+08],00000000
+											  "8B 0D ?? ?? ?? ??",			// mov ecx,[TrackmaniaTurbo.exe+181B818]
+											  "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+7BF8D0
+											  "8B 5C 24 1C");				// mov ebx,[esp+1C]
+
+		LoadingTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+		MapTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+		CpsTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+
+		var Scanner = new SignatureScanner(gameproc, module.BaseAddress, module.ModuleMemorySize);
+		var LoadingPtr = Scanner.Scan(LoadingTarget);
+		var MapPtr = Scanner.Scan(MapTarget);
+		var CpsPtr = Scanner.Scan(CpsTarget);
+
+		var LoadingAdr = (IntPtr)LoadingPtr;
+		var MapAdr = (IntPtr)gameproc.ReadValue<int>((IntPtr)MapPtr) + 0x0;
+		var CpsAdr = (IntPtr)gameproc.ReadValue<int>((IntPtr)gameproc.ReadValue<int>((IntPtr)CpsPtr) + 0x14) + 0x1DC;
+
+		if ((LoadingAdr != IntPtr.Zero) && (MapAdr != IntPtr.Zero) && (CpsAdr != IntPtr.Zero))
+		{
+			vars.LoadingState = new MemoryWatcher<bool>(LoadingAdr);
+			vars.MapName = new StringWatcher(MapAdr, ReadStringType.ASCII, 27);
+			vars.CpCounter = new MemoryWatcher<int>(CpsAdr);
+
+			vars.Watchers.Clear();
+			vars.Watchers.AddRange(new MemoryWatcher[]
+			{
+				vars.LoadingState,
+				vars.MapName,
+				vars.CpCounter
+			});
+			vars.Watchers.UpdateAll(gameproc);
+			return true;
+		}
+		return false;
+	});
 }
 
 init
 {
-	timer.IsGameTimePaused = false;
-
-	var LoadingTarget = new SigScanTarget(6, "8B 54 24 04",				// mov edx,[esp+04]
-											 "89 15 ?? ?? ?? ??",		// mov [TrackmaniaTurbo.exe+181BB14],edx
-											 "85 C0",					// test eax,eax
-											 "75 04");					// jne TrackmaniaTurbo.exe+7C92BC
-
-	var MapTarget = new SigScanTarget(6, "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+30B0
-										 "A1 ?? ?? ?? ??",				// mov eax,[TrackmaniaTurbo.exe+17DAED8]
-										 "C6 04 38 ??",					// mov byte ptr [eax+edi],00
-										 "89 3D ?? ?? ?? ??");			// mov [TrackmaniaTurbo.exe+17DAEDC],edi
-
-	var CpsTarget = new SigScanTarget(12, "89 41 04",					// mov [ecx+04],eax
-										  "C7 41 08 ?? ?? ?? ??",		// mov [ecx+08],00000000
-										  "8B 0D ?? ?? ?? ??",			// mov ecx,[TrackmaniaTurbo.exe+181B818]
-										  "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+7BF8D0
-										  "8B 5C 24 1C");				// mov ebx,[esp+1C]
-
-	LoadingTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-	MapTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-	CpsTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-
-	var Module = modules.First();
-	var Scanner = new SignatureScanner(game, Module.BaseAddress, Module.ModuleMemorySize);
-
-	var LoadingPtr = Scanner.Scan(LoadingTarget);
-	var MapPtr = Scanner.Scan(MapTarget);
-	var CpsPtr = Scanner.Scan(CpsTarget);
-
-	var LoadingAdr = (IntPtr)LoadingPtr;
-	var MapAdr = (IntPtr)game.ReadValue<int>((IntPtr)MapPtr) + 0x0;
-	var CpsAdr = (IntPtr)game.ReadValue<int>((IntPtr)game.ReadValue<int>((IntPtr)CpsPtr) + 0x14) + 0x1DC;
-
-	vars.LoadingState = new MemoryWatcher<bool>(LoadingAdr);
-	vars.MapName = new StringWatcher(MapAdr, ReadStringType.ASCII, 27);
-	vars.CpCounter = new MemoryWatcher<int>(CpsAdr);
-
-	vars.Watchers = new MemoryWatcherList();
-	vars.Watchers.AddRange(new MemoryWatcher[]
-	{
-		vars.LoadingState,
-		vars.MapName,
-		vars.CpCounter
-	});
+	vars.Init = false;
+	vars.Module = modules.First();
 }
 
 update
 {
-	vars.Watchers.UpdateAll(game);
+	if (vars.Init)
+		vars.Watchers.UpdateAll(game);
+	else if (modules.Length == 136)
+		vars.Init = vars.TryInit(game, vars.Module);
 }
 
 isLoading
 {
-	return vars.LoadingState.Current;
+	return vars.LoadingState.Current && vars.Init;
 }
 
 start
@@ -460,7 +476,7 @@ split
 	// Map change, doesn't split on game crash or game restart
 	if ((settings["SplitOnMapExit"]) && (vars.MapName.Current.StartsWith("[Game] main menu")) && (vars.MapName.Old.StartsWith("[Game] init challenge")))
 		return true;
-	if ((settings["SplitOnMapLoad"]) && (vars.MapName.Old.StartsWith("[Game] main menu")) && (vars.MapName.Current.StartsWith("[Game] init challenge")))
+	if ((settings["SplitOnMapLoad"]) && (vars.MapName.Old.StartsWith("[Game] exec MenuResult: 6")) && (vars.MapName.Current.StartsWith("[Game] init challenge")))
 		return true;
 	// Map completion, finish line
 	if (vars.CpCounter.Current != vars.CpCounter.Old)

@@ -93,64 +93,87 @@ startup
 	settings.Add("SplitOnMapFinish", false, "Auto split when finishing a map.");
 	foreach (var map in vars.Maps)
 		settings.Add(map.Key, true, map.Key.Substring(29, 3), "SplitOnMapFinish");
+
+	vars.GameRestart = false;
+	vars.Watchers = new MemoryWatcherList();
+	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
+	vars.MapName = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
+	vars.CpCounter = new MemoryWatcher<int>(IntPtr.Zero);
+	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameproc, module) =>
+	{
+		var LoadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00",	// cmp dword ptr [ManiaPlanet.exe+17B4220],00
+												 "8B 0D ?? ?? ?? ??",		// mov ecx,[ManiaPlanet.exe+17B4224]
+												 "75 08",					// jne ManiaPlanet.exe+7E7B77
+												 "85 C9");					// test ecx,ecx
+
+		var MapTarget = new SigScanTarget(5, "FF 75 38",					// push [ebp+38]
+											 "FF 35 ?? ?? ?? ??",			// push [ManiaPlanet.exe+1771598]
+											 "E8 ?? ?? ?? ??",				// call ManiaPlanet.exe+BFD4D0
+											 "83 C4 0C",					// add esp,0C
+											 "8D 4D 38");					// lea ecx,[ebp+38]
+
+		var CpsTarget = new SigScanTarget(12, "89 41 04",					// mov [ecx+04],eax
+											  "C7 41 08 ?? ?? ?? ??",		// mov [ecx+08],00000000
+											  "8B 0D ?? ?? ?? ??",			// mov ecx,[ManiaPlanet.exe+17B3E40]
+											  "E8 ?? ?? ?? ??",				// call ManiaPlanet.exe+7D5F40
+											  "85 DB");						// test ebx,ebx
+
+		LoadingTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+		MapTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+		CpsTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+
+		var Scanner = new SignatureScanner(gameproc, module.BaseAddress, module.ModuleMemorySize);
+		var LoadingPtr = Scanner.Scan(LoadingTarget);
+		var MapPtr = Scanner.Scan(MapTarget);
+		var CpsPtr = Scanner.Scan(CpsTarget);
+
+		var LoadingAdr = (IntPtr)LoadingPtr;
+		var MapAdr = (IntPtr)gameproc.ReadValue<int>((IntPtr)MapPtr) + 0x0;
+		var CpsAdr = (IntPtr)gameproc.ReadValue<int>((IntPtr)gameproc.ReadValue<int>((IntPtr)CpsPtr) + 0x14) + 0xAC;
+
+		if ((LoadingAdr != IntPtr.Zero) && (MapAdr != IntPtr.Zero) && (CpsAdr != IntPtr.Zero))
+		{
+			vars.LoadingState = new MemoryWatcher<bool>(LoadingAdr);
+			vars.MapName = new StringWatcher(MapAdr, ReadStringType.ASCII, 33);
+			vars.CpCounter = new MemoryWatcher<int>(CpsAdr);
+
+			vars.Watchers.Clear();
+			vars.Watchers.AddRange(new MemoryWatcher[]
+			{
+				vars.LoadingState,
+				vars.MapName,
+				vars.CpCounter
+			});
+			vars.Watchers.UpdateAll(gameproc);
+			return true;
+		}
+		return false;
+	});
 }
 
 init
 {
-	timer.IsGameTimePaused = false;
-
-	var LoadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00",	// cmp dword ptr [ManiaPlanet.exe+17B4220],00
-											 "8B 0D ?? ?? ?? ??",		// mov ecx,[ManiaPlanet.exe+17B4224]
-											 "75 08",					// jne ManiaPlanet.exe+7E7B77
-											 "85 C9");					// test ecx,ecx
-
-	var MapTarget = new SigScanTarget(5, "FF 75 38",					// push [ebp+38]
-										 "FF 35 ?? ?? ?? ??",			// push [ManiaPlanet.exe+1771598]
-										 "E8 ?? ?? ?? ??",				// call ManiaPlanet.exe+BFD4D0
-										 "83 C4 0C",					// add esp,0C
-										 "8D 4D 38");					// lea ecx,[ebp+38]
-
-	var CpsTarget = new SigScanTarget(12, "89 41 04",					// mov [ecx+04],eax
-										  "C7 41 08 ?? ?? ?? ??",		// mov [ecx+08],00000000
-										  "8B 0D ?? ?? ?? ??",			// mov ecx,[ManiaPlanet.exe+17B3E40]
-										  "E8 ?? ?? ?? ??",				// call ManiaPlanet.exe+7D5F40
-										  "85 DB");						// test ebx,ebx
-
-	LoadingTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-	MapTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-	CpsTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-
-	var Module = modules.First();
-	var Scanner = new SignatureScanner(game, Module.BaseAddress, Module.ModuleMemorySize);
-
-	var LoadingPtr = Scanner.Scan(LoadingTarget);
-	var MapPtr = Scanner.Scan(MapTarget);
-	var CpsPtr = Scanner.Scan(CpsTarget);
-
-	var LoadingAdr = (IntPtr)LoadingPtr;
-	var MapAdr = (IntPtr)game.ReadValue<int>((IntPtr)MapPtr) + 0x0;
-	var CpsAdr = (IntPtr)game.ReadValue<int>((IntPtr)game.ReadValue<int>((IntPtr)CpsPtr) + 0x14) + 0xAC;
-
-	vars.LoadingState = new MemoryWatcher<bool>(LoadingAdr);
-	vars.MapName = new StringWatcher(MapAdr, ReadStringType.ASCII, 33);
-	vars.CpCounter = new MemoryWatcher<int>(CpsAdr);
-
-	vars.Watchers = new MemoryWatcherList();
-	vars.Watchers.AddRange(new MemoryWatcher[]
-	{
-		vars.LoadingState,
-		vars.MapName,
-		vars.CpCounter
-	});
+	vars.Init = false;
+	vars.Module = modules.First();
 }
 
 update
 {
 	vars.Watchers.UpdateAll(game);
+	if (vars.Init)
+	{
+		if (vars.MapName.Current != null)
+			if (!vars.MapName.Current.StartsWith("[Game]"))
+				vars.GameRestart = !vars.TryInit(game, vars.Module);
+	}
+	else if (modules.Length == 122)
+		vars.Init = vars.TryInit(game, vars.Module);
 }
 
 isLoading
 {
+	if (!vars.Init || vars.GameRestart)
+		return true;
 	return vars.LoadingState.Current;
 }
 
@@ -220,4 +243,5 @@ split
 exit
 {
 	timer.IsGameTimePaused = true;
+	vars.GameRestart = true;
 }
