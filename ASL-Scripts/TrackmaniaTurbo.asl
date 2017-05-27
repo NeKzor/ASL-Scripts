@@ -259,10 +259,10 @@ startup
 	vars.CpCounter = new MemoryWatcher<int>(IntPtr.Zero);
 	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameproc, module) =>
 	{
-		var LoadingTarget = new SigScanTarget(6, "8B 54 24 04",				// mov edx,[esp+04]
-												 "89 15 ?? ?? ?? ??",		// mov [TrackmaniaTurbo.exe+181BB14],edx
+		var LoadingTarget = new SigScanTarget(1, "A1 ?? ?? ?? ??",			// mov eax,[TrackmaniaTurbo.exe+181BB10]
 												 "85 C0",					// test eax,eax
-												 "75 04");					// jne TrackmaniaTurbo.exe+7C92BC
+												 "75 0C",					// jne TrackmaniaTurbo.exe+7C92A5
+												 "39 05 ?? ?? ?? ??");		// cmp [TrackmaniaTurbo.exe+181BB14],eax
 
 		var MapTarget = new SigScanTarget(6, "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+30B0
 											 "A1 ?? ?? ?? ??",				// mov eax,[TrackmaniaTurbo.exe+17DAED8]
@@ -324,7 +324,7 @@ update
 
 isLoading
 {
-	return vars.LoadingState.Current && vars.Init;
+	return vars.LoadingState.Current || !vars.Init;
 }
 
 start
