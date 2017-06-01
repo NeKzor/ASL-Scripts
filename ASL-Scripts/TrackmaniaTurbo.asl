@@ -48,7 +48,7 @@ startup
 	{
 		{ "[Game] init challenge '001'", 4 },
 		{ "[Game] init challenge '002'", 5 },
-		{ "[Game] init challenge '003'", 6 },
+		{ "[Game] init challenge '003'", 5 },
 		{ "[Game] init challenge '004'", 4 },
 		{ "[Game] init challenge '005'", 12 },
 		{ "[Game] init challenge '006'", 4 },
