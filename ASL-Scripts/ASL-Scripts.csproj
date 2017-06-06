@@ -24,10 +24,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TURBO|AnyCPU'">
     <OutputPath>bin\TURBO\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TMNF|AnyCPU'">
+    <OutputPath>bin\TMNF\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="INFRA.asl" />
     <None Include="README.md" />
-    <None Include="SigscanningTest.asl" />
+    <None Include="TrackmaniaNationsForever.asl" />
     <None Include="TrackmaniaTurbo.asl" />
     <None Include="TrackMania2Stadium.asl" />
   </ItemGroup>

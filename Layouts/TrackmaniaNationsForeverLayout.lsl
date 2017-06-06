@@ -151,7 +151,7 @@
       <Path>LiveSplit.ScriptableAutoSplit.dll</Path>
       <Settings>
         <Version>1.5</Version>
-        <ScriptPath>C:\Users\Thomas\Documents\Visual Studio 2017\Projects\ASL-Scripts\ASL-Scripts\TrackMania2Stadium.asl</ScriptPath>
+        <ScriptPath>C:\Users\Thomas\Documents\Visual Studio 2017\Projects\ASL-Scripts\ASL-Scripts\TrackmaniaNationsForever.asl</ScriptPath>
         <Start>True</Start>
         <Reset>True</Reset>
         <Split>True</Split>
