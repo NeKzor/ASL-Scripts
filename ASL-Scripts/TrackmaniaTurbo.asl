@@ -1,5 +1,8 @@
-﻿state("TrackmaniaTurbo")	// 11/07/2016 03:15:45 PM (SoI: 0x19BA000)
+﻿state("TrackmaniaTurbo")
 {
+	// 2016-11-07 03:15:45 PM
+	// SoI: 0x19BA000
+	// https://github.com/NeKzor
 }
 
 startup
@@ -257,7 +260,7 @@ startup
 	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
 	vars.MapName = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 27);
 	vars.CpCounter = new MemoryWatcher<int>(IntPtr.Zero);
-	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameproc, module) =>
+	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
 	{
 		var LoadingTarget = new SigScanTarget(1, "A1 ?? ?? ?? ??",			// mov eax,[TrackmaniaTurbo.exe+181BB10]
 												 "85 C0",					// test eax,eax
@@ -276,17 +279,26 @@ startup
 											  "8B 5C 24 1C");				// mov ebx,[esp+1C]
 
 		LoadingTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-		MapTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-		CpsTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+		MapTarget.OnFound = (proc, _, ptr) =>
+		{
+			if (proc.ReadPointer(ptr, out ptr))
+				if (proc.ReadPointer(ptr, out ptr))
+					return ptr + 0x0;
+			return IntPtr.Zero;
+		};
+		CpsTarget.OnFound = (proc, _, ptr) =>
+		{
+			if (proc.ReadPointer(ptr, out ptr))
+				if (proc.ReadPointer(ptr, out ptr))
+					if (proc.ReadPointer(ptr + 0x14, out ptr))
+						return ptr + 0x1DC;
+			return IntPtr.Zero;
+		};
 
-		var Scanner = new SignatureScanner(gameproc, module.BaseAddress, module.ModuleMemorySize);
-		var LoadingPtr = Scanner.Scan(LoadingTarget);
-		var MapPtr = Scanner.Scan(MapTarget);
-		var CpsPtr = Scanner.Scan(CpsTarget);
-
-		var LoadingAdr = (IntPtr)LoadingPtr;
-		var MapAdr = (IntPtr)gameproc.ReadValue<int>((IntPtr)MapPtr) + 0x0;
-		var CpsAdr = (IntPtr)gameproc.ReadValue<int>((IntPtr)gameproc.ReadValue<int>((IntPtr)CpsPtr) + 0x14) + 0x1DC;
+		var Scanner = new SignatureScanner(gameProc, module.BaseAddress, module.ModuleMemorySize);
+		var LoadingAdr = (IntPtr)Scanner.Scan(LoadingTarget);
+		var MapAdr = (IntPtr)Scanner.Scan(MapTarget);
+		var CpsAdr = (IntPtr)Scanner.Scan(CpsTarget);
 
 		if ((LoadingAdr != IntPtr.Zero) && (MapAdr != IntPtr.Zero) && (CpsAdr != IntPtr.Zero))
 		{
@@ -301,7 +313,7 @@ startup
 				vars.MapName,
 				vars.CpCounter
 			});
-			vars.Watchers.UpdateAll(gameproc);
+			vars.Watchers.UpdateAll(gameProc);
 			return true;
 		}
 		return false;

@@ -15,19 +15,23 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'INFRA|AnyCPU'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TM2STADIUM|AnyCPU'">
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TURBO|AnyCPU'">
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TM2|AnyCPU'">
+    <OutputPath>bin\TM2\</OutputPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TMNF|AnyCPU'">
+    <OutputPath>bin\TMNF\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'INFRA|AnyCPU'">
+    <OutputPath>bin\INFRA\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <None Include="INFRA.asl" />
+    <None Include="TrackMania2Stadium.asl" />
     <None Include="TrackmaniaNationsForever.asl" />
     <None Include="TrackmaniaTurbo.asl" />
-    <None Include="TrackMania2Stadium.asl" />
+    <None Include="TrackMania2.asl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
