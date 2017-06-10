@@ -255,7 +255,7 @@ split
 	if ((settings["SplitOnMapChange"]) && (vars.OldMapName != vars.CurrentMapName))
 		return true;
 	// Finish line
-	if (vars.CpCounter.Current != vars.CpCounter.Old)
+	if ((vars.CpCounter.Current != vars.CpCounter.Old) && (vars.CurrentMap != null))
 	{
 		if (vars.CpCounter.Current == vars.CurrentMap.Item2)
 		{
