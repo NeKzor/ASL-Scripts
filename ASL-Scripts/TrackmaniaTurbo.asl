@@ -7,46 +7,69 @@
 
 startup
 {
-	settings.Add("SplitOnMapChange", true, "Auto split on map change:");
-	settings.Add("SplitOnMapExit", true, "When leaving a map.", "SplitOnMapChange");
-	settings.Add("SplitOnMapLoad", false, "When entering a map.", "SplitOnMapChange");
-	settings.Add("Categories", true, "Auto start, reset and end for category:");
-	settings.Add("AllEnvironments", true, "All Environments", "Categories");
-	settings.Add("AllFlagsAllEnvironments", true, "All Flags", "AllEnvironments");
-	settings.Add("WhiteFlagAllEnvironments", false, "White Flags", "AllEnvironments");
-	settings.Add("GreenFlagAllEnvironments", false, "Green Flags", "AllEnvironments");
-	settings.Add("BlueFlagAllEnvironments", false, "Blue Flags", "AllEnvironments");
-	settings.Add("RedFlagAllEnvironments", false, "Red Flags", "AllEnvironments");
-	settings.Add("BlackFlagAllEnvironments", false, "Black Flags", "AllEnvironments");
-	settings.Add("RollercoasterLagoon", false, "Rollercoaster Lagoon", "Categories");
-	settings.Add("AllFlagsRollercoasterLagoon", false, "All Flags", "RollercoasterLagoon");
-	settings.Add("WhiteFlagRollercoasterLagoon", false, "White Flag", "RollercoasterLagoon");
-	settings.Add("GreenFlagRollercoasterLagoon", false, "Green Flag", "RollercoasterLagoon");
-	settings.Add("BlueFlagRollercoasterLagoon", false, "Blue Flag", "RollercoasterLagoon");
-	settings.Add("RedFlagRollercoasterLagoon", false, "Red Flag", "RollercoasterLagoon");
-	settings.Add("BlackFlagRollercoasterLagoon", false, "Black Flag", "RollercoasterLagoon");
-	settings.Add("InternationalStadium", false, "International Stadium", "Categories");
-	settings.Add("AllFlagsInternationalStadium", false, "All Flags", "InternationalStadium");
-	settings.Add("WhiteFlagInternationalStadium", false, "White Flag", "InternationalStadium");
-	settings.Add("GreenFlagInternationalStadium", false, "Green Flag", "InternationalStadium");
-	settings.Add("BlueFlagInternationalStadium", false, "Blue Flag", "InternationalStadium");
-	settings.Add("RedFlagInternationalStadium", false, "Red Flag", "InternationalStadium");
-	settings.Add("BlackFlagInternationalStadium", false, "Black Flag", "InternationalStadium");
-	settings.Add("CanyonGrandDrift", false, "Canyon Grand Drift", "Categories");
-	settings.Add("AllFlagsCanyonGrandDrift", false, "All Flags", "CanyonGrandDrift");
-	settings.Add("WhiteFlagCanyonGrandDrift", false, "White Flag", "CanyonGrandDrift");
-	settings.Add("GreenFlagCanyonGrandDrift", false, "Green Flag", "CanyonGrandDrift");
-	settings.Add("BlueFlagCanyonGrandDrift", false, "Blue Flag", "CanyonGrandDrift");
-	settings.Add("RedFlagCanyonGrandDrift", false, "Red Flag", "CanyonGrandDrift");
-	settings.Add("BlackFlagCanyonGrandDrift", false, "Black Flag", "CanyonGrandDrift");
-	settings.Add("ValleyDownAndDirty", false, "Valley Down & Dirty", "Categories");
-	settings.Add("AllFlagsValleyDownAndDirty", false, "All Flags", "ValleyDownAndDirty");
-	settings.Add("WhiteFlagValleyDownAndDirty", false, "White Flag", "ValleyDownAndDirty");
-	settings.Add("GreenFlagValleyDownAndDirty", false, "Green Flag", "ValleyDownAndDirty");
-	settings.Add("BlueFlagValleyDownAndDirty", false, "Blue Flag", "ValleyDownAndDirty");
-	settings.Add("RedFlagValleyDownAndDirty", false, "Red Flag", "ValleyDownAndDirty");
-	settings.Add("BlackFlagValleyDownAndDirty", false, "Black Flag", "ValleyDownAndDirty");
+	vars.Init = false;
+	vars.Watchers = new MemoryWatcherList();
+	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
+	vars.MapName = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 27);
+	vars.CpCounter = new MemoryWatcher<int>(IntPtr.Zero);
+	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
+	{
+		var LoadingTarget = new SigScanTarget(1, "A1 ?? ?? ?? ??",			// mov eax,[TrackmaniaTurbo.exe+181BB10]
+												 "85 C0",					// test eax,eax
+												 "75 0C",					// jne TrackmaniaTurbo.exe+7C92A5
+												 "39 05 ?? ?? ?? ??");		// cmp [TrackmaniaTurbo.exe+181BB14],eax
 
+		var MapTarget = new SigScanTarget(6, "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+30B0
+											 "A1 ?? ?? ?? ??",				// mov eax,[TrackmaniaTurbo.exe+17DAED8]
+											 "C6 04 38 ??",					// mov byte ptr [eax+edi],00
+											 "89 3D ?? ?? ?? ??");			// mov [TrackmaniaTurbo.exe+17DAEDC],edi
+
+		var CpsTarget = new SigScanTarget(12, "89 41 04",					// mov [ecx+04],eax
+											  "C7 41 08 ?? ?? ?? ??",		// mov [ecx+08],00000000
+											  "8B 0D ?? ?? ?? ??",			// mov ecx,[TrackmaniaTurbo.exe+181B818]
+											  "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+7BF8D0
+											  "8B 5C 24 1C");				// mov ebx,[esp+1C]
+
+		LoadingTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+		MapTarget.OnFound = (proc, _, ptr) =>
+		{
+			if (proc.ReadPointer(ptr, out ptr))
+				if (proc.ReadPointer(ptr, out ptr))
+					return ptr + 0x0;
+			return IntPtr.Zero;
+		};
+		CpsTarget.OnFound = (proc, _, ptr) =>
+		{
+			if (proc.ReadPointer(ptr, out ptr))
+				if (proc.ReadPointer(ptr, out ptr))
+					if (proc.ReadPointer(ptr + 0x14, out ptr))
+						return ptr + 0x1DC;
+			return IntPtr.Zero;
+		};
+
+		var Scanner = new SignatureScanner(gameProc, module.BaseAddress, module.ModuleMemorySize);
+		var LoadingAdr = (IntPtr)Scanner.Scan(LoadingTarget);
+		var MapAdr = (IntPtr)Scanner.Scan(MapTarget);
+		var CpsAdr = (IntPtr)Scanner.Scan(CpsTarget);
+
+		if ((LoadingAdr != IntPtr.Zero) && (MapAdr != IntPtr.Zero) && (CpsAdr != IntPtr.Zero))
+		{
+			vars.LoadingState = new MemoryWatcher<bool>(LoadingAdr);
+			vars.MapName = new StringWatcher(MapAdr, ReadStringType.ASCII, 27);
+			vars.CpCounter = new MemoryWatcher<int>(CpsAdr);
+
+			vars.Watchers.Clear();
+			vars.Watchers.AddRange(new MemoryWatcher[]
+			{
+				vars.LoadingState,
+				vars.MapName,
+				vars.CpCounter
+			});
+			vars.Watchers.UpdateAll(gameProc);
+			return true;
+		}
+		return false;
+	});
 	vars.Maps = new Dictionary<string, uint>()
 	{
 		{ "[Game] init challenge '001'", 4 },
@@ -251,73 +274,48 @@ startup
 		{ "[Game] init challenge '200'", 17 }
 	};
 
+	settings.Add("SplitOnMapChange", true, "Auto split on map change:");
+	settings.Add("SplitOnMapExit", true, "When leaving a map.", "SplitOnMapChange");
+	settings.Add("SplitOnMapLoad", false, "When entering a map.", "SplitOnMapChange");
+	settings.Add("Categories", true, "Auto start, reset and end for category:");
+	settings.Add("AllEnvironments", true, "All Environments", "Categories");
+	settings.Add("AllFlagsAllEnvironments", true, "All Flags", "AllEnvironments");
+	settings.Add("WhiteFlagAllEnvironments", false, "White Flags", "AllEnvironments");
+	settings.Add("GreenFlagAllEnvironments", false, "Green Flags", "AllEnvironments");
+	settings.Add("BlueFlagAllEnvironments", false, "Blue Flags", "AllEnvironments");
+	settings.Add("RedFlagAllEnvironments", false, "Red Flags", "AllEnvironments");
+	settings.Add("BlackFlagAllEnvironments", false, "Black Flags", "AllEnvironments");
+	settings.Add("RollercoasterLagoon", false, "Rollercoaster Lagoon", "Categories");
+	settings.Add("AllFlagsRollercoasterLagoon", false, "All Flags", "RollercoasterLagoon");
+	settings.Add("WhiteFlagRollercoasterLagoon", false, "White Flag", "RollercoasterLagoon");
+	settings.Add("GreenFlagRollercoasterLagoon", false, "Green Flag", "RollercoasterLagoon");
+	settings.Add("BlueFlagRollercoasterLagoon", false, "Blue Flag", "RollercoasterLagoon");
+	settings.Add("RedFlagRollercoasterLagoon", false, "Red Flag", "RollercoasterLagoon");
+	settings.Add("BlackFlagRollercoasterLagoon", false, "Black Flag", "RollercoasterLagoon");
+	settings.Add("InternationalStadium", false, "International Stadium", "Categories");
+	settings.Add("AllFlagsInternationalStadium", false, "All Flags", "InternationalStadium");
+	settings.Add("WhiteFlagInternationalStadium", false, "White Flag", "InternationalStadium");
+	settings.Add("GreenFlagInternationalStadium", false, "Green Flag", "InternationalStadium");
+	settings.Add("BlueFlagInternationalStadium", false, "Blue Flag", "InternationalStadium");
+	settings.Add("RedFlagInternationalStadium", false, "Red Flag", "InternationalStadium");
+	settings.Add("BlackFlagInternationalStadium", false, "Black Flag", "InternationalStadium");
+	settings.Add("CanyonGrandDrift", false, "Canyon Grand Drift", "Categories");
+	settings.Add("AllFlagsCanyonGrandDrift", false, "All Flags", "CanyonGrandDrift");
+	settings.Add("WhiteFlagCanyonGrandDrift", false, "White Flag", "CanyonGrandDrift");
+	settings.Add("GreenFlagCanyonGrandDrift", false, "Green Flag", "CanyonGrandDrift");
+	settings.Add("BlueFlagCanyonGrandDrift", false, "Blue Flag", "CanyonGrandDrift");
+	settings.Add("RedFlagCanyonGrandDrift", false, "Red Flag", "CanyonGrandDrift");
+	settings.Add("BlackFlagCanyonGrandDrift", false, "Black Flag", "CanyonGrandDrift");
+	settings.Add("ValleyDownAndDirty", false, "Valley Down & Dirty", "Categories");
+	settings.Add("AllFlagsValleyDownAndDirty", false, "All Flags", "ValleyDownAndDirty");
+	settings.Add("WhiteFlagValleyDownAndDirty", false, "White Flag", "ValleyDownAndDirty");
+	settings.Add("GreenFlagValleyDownAndDirty", false, "Green Flag", "ValleyDownAndDirty");
+	settings.Add("BlueFlagValleyDownAndDirty", false, "Blue Flag", "ValleyDownAndDirty");
+	settings.Add("RedFlagValleyDownAndDirty", false, "Red Flag", "ValleyDownAndDirty");
+	settings.Add("BlackFlagValleyDownAndDirty", false, "Black Flag", "ValleyDownAndDirty");
 	settings.Add("SplitOnMapFinish", false, "Auto split when finishing a map.");
 	foreach (var map in vars.Maps)
 		settings.Add(map.Key, true, map.Key.Substring(23, 3), "SplitOnMapFinish");
-
-	vars.Init = false;
-	vars.Watchers = new MemoryWatcherList();
-	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
-	vars.MapName = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 27);
-	vars.CpCounter = new MemoryWatcher<int>(IntPtr.Zero);
-	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
-	{
-		var LoadingTarget = new SigScanTarget(1, "A1 ?? ?? ?? ??",			// mov eax,[TrackmaniaTurbo.exe+181BB10]
-												 "85 C0",					// test eax,eax
-												 "75 0C",					// jne TrackmaniaTurbo.exe+7C92A5
-												 "39 05 ?? ?? ?? ??");		// cmp [TrackmaniaTurbo.exe+181BB14],eax
-
-		var MapTarget = new SigScanTarget(6, "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+30B0
-											 "A1 ?? ?? ?? ??",				// mov eax,[TrackmaniaTurbo.exe+17DAED8]
-											 "C6 04 38 ??",					// mov byte ptr [eax+edi],00
-											 "89 3D ?? ?? ?? ??");			// mov [TrackmaniaTurbo.exe+17DAEDC],edi
-
-		var CpsTarget = new SigScanTarget(12, "89 41 04",					// mov [ecx+04],eax
-											  "C7 41 08 ?? ?? ?? ??",		// mov [ecx+08],00000000
-											  "8B 0D ?? ?? ?? ??",			// mov ecx,[TrackmaniaTurbo.exe+181B818]
-											  "E8 ?? ?? ?? ??",				// call TrackmaniaTurbo.exe+7BF8D0
-											  "8B 5C 24 1C");				// mov ebx,[esp+1C]
-
-		LoadingTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-		MapTarget.OnFound = (proc, _, ptr) =>
-		{
-			if (proc.ReadPointer(ptr, out ptr))
-				if (proc.ReadPointer(ptr, out ptr))
-					return ptr + 0x0;
-			return IntPtr.Zero;
-		};
-		CpsTarget.OnFound = (proc, _, ptr) =>
-		{
-			if (proc.ReadPointer(ptr, out ptr))
-				if (proc.ReadPointer(ptr, out ptr))
-					if (proc.ReadPointer(ptr + 0x14, out ptr))
-						return ptr + 0x1DC;
-			return IntPtr.Zero;
-		};
-
-		var Scanner = new SignatureScanner(gameProc, module.BaseAddress, module.ModuleMemorySize);
-		var LoadingAdr = (IntPtr)Scanner.Scan(LoadingTarget);
-		var MapAdr = (IntPtr)Scanner.Scan(MapTarget);
-		var CpsAdr = (IntPtr)Scanner.Scan(CpsTarget);
-
-		if ((LoadingAdr != IntPtr.Zero) && (MapAdr != IntPtr.Zero) && (CpsAdr != IntPtr.Zero))
-		{
-			vars.LoadingState = new MemoryWatcher<bool>(LoadingAdr);
-			vars.MapName = new StringWatcher(MapAdr, ReadStringType.ASCII, 27);
-			vars.CpCounter = new MemoryWatcher<int>(CpsAdr);
-
-			vars.Watchers.Clear();
-			vars.Watchers.AddRange(new MemoryWatcher[]
-			{
-				vars.LoadingState,
-				vars.MapName,
-				vars.CpCounter
-			});
-			vars.Watchers.UpdateAll(gameProc);
-			return true;
-		}
-		return false;
-	});
 }
 
 init
@@ -341,72 +339,73 @@ isLoading
 
 start
 {
-	if (vars.LoadingState.Current)
-		return false;
-	if (settings["AllEnvironments"])
+	if ((vars.LoadingState.Old) && (!vars.LoadingState.Current))
 	{
-		if ((settings["AllFlagsAllEnvironments"]) || (settings["WhiteFlagAllEnvironments"]))
-			return (vars.MapName.Current == "[Game] init challenge '001'");
-		if (settings["GreenFlagAllEnvironments"])
-			return (vars.MapName.Current == "[Game] init challenge '041'");
-		if (settings["BlueFlagAllEnvironments"])
-			return (vars.MapName.Current == "[Game] init challenge '081'");
-		if (settings["RedFlagAllEnvironments"])
-			return (vars.MapName.Current == "[Game] init challenge '121'");
-		if (settings["BlackFlagAllEnvironments"])
-			return (vars.MapName.Current == "[Game] init challenge '161'");
-	}
-	if (settings["RollercoasterLagoon"])
-	{
-		if ((settings["AllFlagsRollercoasterLagoon"]) || (settings["WhiteFlagRollercoasterLagoon"]))
-			return (vars.MapName.Current == "[Game] init challenge '021'");
-		if (settings["GreenFlagRollercoasterLagoon"])
-			return (vars.MapName.Current == "[Game] init challenge '061'");
-		if (settings["BlueFlagRollercoasterLagoon"])
-			return (vars.MapName.Current == "[Game] init challenge '101'");
-		if (settings["RedFlagRollercoasterLagoon"])
-			return (vars.MapName.Current == "[Game] init challenge '141'");
-		if (settings["BlackFlagRollercoasterLagoon"])
-			return (vars.MapName.Current == "[Game] init challenge '181'");
-	}
-	if (settings["InternationalStadium"])
-	{
-		if ((settings["AllFlagsInternationalStadium"]) || (settings["WhiteFlagInternationalStadium"]))
-			return (vars.MapName.Current == "[Game] init challenge '031'");
-		if (settings["GreenFlagInternationalStadium"])
-			return (vars.MapName.Current == "[Game] init challenge '071'");
-		if (settings["BlueFlagInternationalStadium"])
-			return (vars.MapName.Current == "[Game] init challenge '111'");
-		if (settings["RedFlagInternationalStadium"])
-			return (vars.MapName.Current == "[Game] init challenge '151'");
-		if (settings["BlackFlagInternationalStadium"])
-			return (vars.MapName.Current == "[Game] init challenge '191'");
-	}
-	if (settings["CanyonGrandDrift"])
-	{
-		if ((settings["AllFlagsCanyonGrandDrift"]) || (settings["WhiteFlagCanyonGrandDrift"]))
-			return (vars.MapName.Current == "[Game] init challenge '001'");
-		if (settings["GreenFlagCanyonGrandDrift"])
-			return (vars.MapName.Current == "[Game] init challenge '041'");
-		if (settings["BlueFlagCanyonGrandDrift"])
-			return (vars.MapName.Current == "[Game] init challenge '081'");
-		if (settings["RedFlagCanyonGrandDrift"])
-			return (vars.MapName.Current == "[Game] init challenge '121'");
-		if (settings["BlackFlagCanyonGrandDrift"])
-			return (vars.MapName.Current == "[Game] init challenge '161'");
-	}
-	if (settings["ValleyDownAndDirty"])
-	{
-		if ((settings["AllFlagsValleyDownAndDirty"]) || (settings["WhiteFlagValleyDownAndDirty"]))
-			return (vars.MapName.Current == "[Game] init challenge '011'");
-		if (settings["GreenFlagValleyDownAndDirty"])
-			return (vars.MapName.Current == "[Game] init challenge '051'");
-		if (settings["BlueFlagValleyDownAndDirty"])
-			return (vars.MapName.Current == "[Game] init challenge '091'");
-		if (settings["RedFlagValleyDownAndDirty"])
-			return (vars.MapName.Current == "[Game] init challenge '131'");
-		if (settings["BlackFlagValleyDownAndDirty"])
-			return (vars.MapName.Current == "[Game] init challenge '171'");
+		if (settings["AllEnvironments"])
+		{
+			if ((settings["AllFlagsAllEnvironments"]) || (settings["WhiteFlagAllEnvironments"]))
+				return (vars.MapName.Current == "[Game] init challenge '001'");
+			if (settings["GreenFlagAllEnvironments"])
+				return (vars.MapName.Current == "[Game] init challenge '041'");
+			if (settings["BlueFlagAllEnvironments"])
+				return (vars.MapName.Current == "[Game] init challenge '081'");
+			if (settings["RedFlagAllEnvironments"])
+				return (vars.MapName.Current == "[Game] init challenge '121'");
+			if (settings["BlackFlagAllEnvironments"])
+				return (vars.MapName.Current == "[Game] init challenge '161'");
+		}
+		if (settings["RollercoasterLagoon"])
+		{
+			if ((settings["AllFlagsRollercoasterLagoon"]) || (settings["WhiteFlagRollercoasterLagoon"]))
+				return (vars.MapName.Current == "[Game] init challenge '021'");
+			if (settings["GreenFlagRollercoasterLagoon"])
+				return (vars.MapName.Current == "[Game] init challenge '061'");
+			if (settings["BlueFlagRollercoasterLagoon"])
+				return (vars.MapName.Current == "[Game] init challenge '101'");
+			if (settings["RedFlagRollercoasterLagoon"])
+				return (vars.MapName.Current == "[Game] init challenge '141'");
+			if (settings["BlackFlagRollercoasterLagoon"])
+				return (vars.MapName.Current == "[Game] init challenge '181'");
+		}
+		if (settings["InternationalStadium"])
+		{
+			if ((settings["AllFlagsInternationalStadium"]) || (settings["WhiteFlagInternationalStadium"]))
+				return (vars.MapName.Current == "[Game] init challenge '031'");
+			if (settings["GreenFlagInternationalStadium"])
+				return (vars.MapName.Current == "[Game] init challenge '071'");
+			if (settings["BlueFlagInternationalStadium"])
+				return (vars.MapName.Current == "[Game] init challenge '111'");
+			if (settings["RedFlagInternationalStadium"])
+				return (vars.MapName.Current == "[Game] init challenge '151'");
+			if (settings["BlackFlagInternationalStadium"])
+				return (vars.MapName.Current == "[Game] init challenge '191'");
+		}
+		if (settings["CanyonGrandDrift"])
+		{
+			if ((settings["AllFlagsCanyonGrandDrift"]) || (settings["WhiteFlagCanyonGrandDrift"]))
+				return (vars.MapName.Current == "[Game] init challenge '001'");
+			if (settings["GreenFlagCanyonGrandDrift"])
+				return (vars.MapName.Current == "[Game] init challenge '041'");
+			if (settings["BlueFlagCanyonGrandDrift"])
+				return (vars.MapName.Current == "[Game] init challenge '081'");
+			if (settings["RedFlagCanyonGrandDrift"])
+				return (vars.MapName.Current == "[Game] init challenge '121'");
+			if (settings["BlackFlagCanyonGrandDrift"])
+				return (vars.MapName.Current == "[Game] init challenge '161'");
+		}
+		if (settings["ValleyDownAndDirty"])
+		{
+			if ((settings["AllFlagsValleyDownAndDirty"]) || (settings["WhiteFlagValleyDownAndDirty"]))
+				return (vars.MapName.Current == "[Game] init challenge '011'");
+			if (settings["GreenFlagValleyDownAndDirty"])
+				return (vars.MapName.Current == "[Game] init challenge '051'");
+			if (settings["BlueFlagValleyDownAndDirty"])
+				return (vars.MapName.Current == "[Game] init challenge '091'");
+			if (settings["RedFlagValleyDownAndDirty"])
+				return (vars.MapName.Current == "[Game] init challenge '131'");
+			if (settings["BlackFlagValleyDownAndDirty"])
+				return (vars.MapName.Current == "[Game] init challenge '171'");
+		}
 	}
 	return false;
 }

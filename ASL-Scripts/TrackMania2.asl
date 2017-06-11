@@ -7,86 +7,9 @@
 
 startup
 {
-	settings.Add("SplitOnMapChange", true, "Auto split on map change:");
-	settings.Add("SplitOnMapExit", true, "When leaving a map.", "SplitOnMapChange");
-	settings.Add("SplitOnMapLoad", false, "When entering a map.", "SplitOnMapChange");
-	
-	vars.Maps = new Dictionary<string, Tuple<uint, uint, uint, uint>>()
-	{
-		// Thanks to RastaBobby for collecting most of the cp data
-		{ "[Game] init challenge '$fff$sA01'", new Tuple<uint, uint, uint, uint>(3, 4, 5, 4) },
-		{ "[Game] init challenge '$fff$sA02'", new Tuple<uint, uint, uint, uint>(2, 6, 5, 4) },
-		{ "[Game] init challenge '$fff$sA03'", new Tuple<uint, uint, uint, uint>(1, 3, 3, 4) },
-		{ "[Game] init challenge '$fff$sA04'", new Tuple<uint, uint, uint, uint>(3, 4, 6, 3) },
-		{ "[Game] init challenge '$fff$sA05'", new Tuple<uint, uint, uint, uint>(15, 14, 12, 12) },
-		{ "[Game] init challenge '$fff$sA06'", new Tuple<uint, uint, uint, uint>(3, 5, 5, 5) },
-		{ "[Game] init challenge '$fff$sA07'", new Tuple<uint, uint, uint, uint>(3, 2, 5, 5) },
-		{ "[Game] init challenge '$fff$sA08'", new Tuple<uint, uint, uint, uint>(2, 2, 1, 2) },
-		{ "[Game] init challenge '$fff$sA09'", new Tuple<uint, uint, uint, uint>(4, 4, 6, 6) },
-		{ "[Game] init challenge '$fff$sA10'", new Tuple<uint, uint, uint, uint>(20, 12, 18, 15) },
-		{ "[Game] init challenge '$fff$sA11'", new Tuple<uint, uint, uint, uint>(3, 4, 5, 4) },
-		{ "[Game] init challenge '$fff$sA12'", new Tuple<uint, uint, uint, uint>(4, 6, 6, 5) },
-		{ "[Game] init challenge '$fff$sA13'", new Tuple<uint, uint, uint, uint>(2, 3, 2, 3) },
-		{ "[Game] init challenge '$fff$sA14'", new Tuple<uint, uint, uint, uint>(3, 5, 4, 5) },
-		{ "[Game] init challenge '$fff$sA15'", new Tuple<uint, uint, uint, uint>(20, 24, 21, 15) },
-		{ "[Game] init challenge '$fff$sB01'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 6) },
-		{ "[Game] init challenge '$fff$sB02'", new Tuple<uint, uint, uint, uint>(999, 999, 5, 5) },
-		{ "[Game] init challenge '$fff$sB03'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 4) },
-		{ "[Game] init challenge '$fff$sB04'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
-		{ "[Game] init challenge '$fff$sB05'", new Tuple<uint, uint, uint, uint>(999, 999, 21, 18) },
-		{ "[Game] init challenge '$fff$sB06'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 7) },
-		{ "[Game] init challenge '$fff$sB07'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
-		{ "[Game] init challenge '$fff$sB08'", new Tuple<uint, uint, uint, uint>(999, 999, 5, 3) },
-		{ "[Game] init challenge '$fff$sB09'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 4) },
-		{ "[Game] init challenge '$fff$sB10'", new Tuple<uint, uint, uint, uint>(999, 999, 18, 15) },
-		{ "[Game] init challenge '$fff$sB11'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 5) },
-		{ "[Game] init challenge '$fff$sB12'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 7) },
-		{ "[Game] init challenge '$fff$sB13'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 5) },
-		{ "[Game] init challenge '$fff$sB14'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 6) },
-		{ "[Game] init challenge '$fff$sB15'", new Tuple<uint, uint, uint, uint>(999, 999, 15, 21) },
-		{ "[Game] init challenge '$fff$sC01'", new Tuple<uint, uint, uint, uint>(999, 999, 10, 7) },
-		{ "[Game] init challenge '$fff$sC02'", new Tuple<uint, uint, uint, uint>(999, 999, 13, 6) },
-		{ "[Game] init challenge '$fff$sC03'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 3) },
-		{ "[Game] init challenge '$fff$sC04'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 7) },
-		{ "[Game] init challenge '$fff$sC05'", new Tuple<uint, uint, uint, uint>(999, 999, 21, 21) },
-		{ "[Game] init challenge '$fff$sC06'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 9) },
-		{ "[Game] init challenge '$fff$sC07'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
-		{ "[Game] init challenge '$fff$sC08'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 5) },
-		{ "[Game] init challenge '$fff$sC09'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 9) },
-		{ "[Game] init challenge '$fff$sC10'", new Tuple<uint, uint, uint, uint>(999, 999, 24, 24) },
-		{ "[Game] init challenge '$fff$sC11'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 8) },
-		{ "[Game] init challenge '$fff$sC12'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 7) },
-		{ "[Game] init challenge '$fff$sC13'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 3) },
-		{ "[Game] init challenge '$fff$sC14'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 9) },
-		{ "[Game] init challenge '$fff$sC15'", new Tuple<uint, uint, uint, uint>(999, 999, 24, 30) },
-		{ "[Game] init challenge '$fff$sD01'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 12) },
-		{ "[Game] init challenge '$fff$sD02'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
-		{ "[Game] init challenge '$fff$sD03'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 3) },
-		{ "[Game] init challenge '$fff$sD04'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 10) },
-		{ "[Game] init challenge '$fff$sD05'", new Tuple<uint, uint, uint, uint>(999, 999, 18, 27) },
-		{ "[Game] init challenge '$fff$sD06'", new Tuple<uint, uint, uint, uint>(999, 999, 10, 9) },
-		{ "[Game] init challenge '$fff$sD07'", new Tuple<uint, uint, uint, uint>(999, 999, 11, 8) },
-		{ "[Game] init challenge '$fff$sD08'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 4) },
-		{ "[Game] init challenge '$fff$sD09'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 13) },
-		{ "[Game] init challenge '$fff$sD10'", new Tuple<uint, uint, uint, uint>(999, 999, 30, 50) },
-		{ "[Game] init challenge '$fff$sD11'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 8) },
-		{ "[Game] init challenge '$fff$sD12'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 999) },
-		{ "[Game] init challenge '$fff$sD13'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 999) },
-		{ "[Game] init challenge '$fff$sD14'", new Tuple<uint, uint, uint, uint>(999, 999, 13, 999) },
-		{ "[Game] init challenge '$fff$sD15'", new Tuple<uint, uint, uint, uint>(999, 999, 90, 999) },
-		{ "[Game] init challenge '$fff$sE01'", new Tuple<uint, uint, uint, uint>(999, 999, 11, 999) },
-		{ "[Game] init challenge '$fff$sE02'", new Tuple<uint, uint, uint, uint>(999, 999, 16, 999) },
-		{ "[Game] init challenge '$fff$sE03'", new Tuple<uint, uint, uint, uint>(999, 999, 25, 999) },
-		{ "[Game] init challenge '$fff$sE04'", new Tuple<uint, uint, uint, uint>(999, 999, 25, 999) },
-		{ "[Game] init challenge '$fff$sE05'", new Tuple<uint, uint, uint, uint>(999, 999, 150, 999) }
-	};
-
-	settings.Add("SplitOnMapFinish", false, "Auto split when finishing a map.");
-	foreach (var map in vars.Maps)
-		settings.Add(map.Key, true, map.Key.Substring(29, 3), "SplitOnMapFinish");
-
-	vars.CategoryName = timer.Run.CategoryName;
 	vars.GameRestart = false;
+	vars.FirstMap = string.Empty;
+	vars.CategoryName = string.Empty;
 	vars.Watchers = new MemoryWatcherList();
 	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
 	vars.GameInfo = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
@@ -174,6 +97,101 @@ startup
 		}
 		return 1337u;
 	});
+	vars.GetFirstMap = (Func<string, string>)((categoryName) =>
+	{
+		switch (categoryName)
+		{
+			case "All Flags":
+			case "White":
+				return "[Game] init challenge '$fff$sA01'";
+			case "Green":
+				return "[Game] init challenge '$fff$sB01'";
+			case "Blue":
+				return "[Game] init challenge '$fff$sC01'";
+			case "Red":
+				return "[Game] init challenge '$fff$sD01'";
+			case "Black":
+				return "[Game] init challenge '$fff$sE01'";
+			default:
+				return string.Empty;
+		}
+	});
+	// Thanks to RastaBobby for collecting most of the cp data
+	vars.Maps = new Dictionary<string, Tuple<uint, uint, uint, uint>>()
+	{
+		{ "[Game] init challenge '$fff$sA01'", new Tuple<uint, uint, uint, uint>(3, 4, 5, 4) },
+		{ "[Game] init challenge '$fff$sA02'", new Tuple<uint, uint, uint, uint>(2, 6, 5, 4) },
+		{ "[Game] init challenge '$fff$sA03'", new Tuple<uint, uint, uint, uint>(1, 3, 3, 4) },
+		{ "[Game] init challenge '$fff$sA04'", new Tuple<uint, uint, uint, uint>(3, 4, 6, 3) },
+		{ "[Game] init challenge '$fff$sA05'", new Tuple<uint, uint, uint, uint>(15, 14, 12, 12) },
+		{ "[Game] init challenge '$fff$sA06'", new Tuple<uint, uint, uint, uint>(3, 5, 5, 5) },
+		{ "[Game] init challenge '$fff$sA07'", new Tuple<uint, uint, uint, uint>(3, 2, 5, 5) },
+		{ "[Game] init challenge '$fff$sA08'", new Tuple<uint, uint, uint, uint>(2, 2, 1, 2) },
+		{ "[Game] init challenge '$fff$sA09'", new Tuple<uint, uint, uint, uint>(4, 4, 6, 6) },
+		{ "[Game] init challenge '$fff$sA10'", new Tuple<uint, uint, uint, uint>(20, 12, 18, 15) },
+		{ "[Game] init challenge '$fff$sA11'", new Tuple<uint, uint, uint, uint>(3, 4, 5, 4) },
+		{ "[Game] init challenge '$fff$sA12'", new Tuple<uint, uint, uint, uint>(4, 6, 6, 5) },
+		{ "[Game] init challenge '$fff$sA13'", new Tuple<uint, uint, uint, uint>(2, 3, 2, 3) },
+		{ "[Game] init challenge '$fff$sA14'", new Tuple<uint, uint, uint, uint>(3, 5, 4, 5) },
+		{ "[Game] init challenge '$fff$sA15'", new Tuple<uint, uint, uint, uint>(20, 24, 21, 15) },
+		{ "[Game] init challenge '$fff$sB01'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 6) },
+		{ "[Game] init challenge '$fff$sB02'", new Tuple<uint, uint, uint, uint>(999, 999, 5, 5) },
+		{ "[Game] init challenge '$fff$sB03'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 4) },
+		{ "[Game] init challenge '$fff$sB04'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
+		{ "[Game] init challenge '$fff$sB05'", new Tuple<uint, uint, uint, uint>(999, 999, 21, 18) },
+		{ "[Game] init challenge '$fff$sB06'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 7) },
+		{ "[Game] init challenge '$fff$sB07'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
+		{ "[Game] init challenge '$fff$sB08'", new Tuple<uint, uint, uint, uint>(999, 999, 5, 3) },
+		{ "[Game] init challenge '$fff$sB09'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 4) },
+		{ "[Game] init challenge '$fff$sB10'", new Tuple<uint, uint, uint, uint>(999, 999, 18, 15) },
+		{ "[Game] init challenge '$fff$sB11'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 5) },
+		{ "[Game] init challenge '$fff$sB12'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 7) },
+		{ "[Game] init challenge '$fff$sB13'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 5) },
+		{ "[Game] init challenge '$fff$sB14'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 6) },
+		{ "[Game] init challenge '$fff$sB15'", new Tuple<uint, uint, uint, uint>(999, 999, 15, 21) },
+		{ "[Game] init challenge '$fff$sC01'", new Tuple<uint, uint, uint, uint>(999, 999, 10, 7) },
+		{ "[Game] init challenge '$fff$sC02'", new Tuple<uint, uint, uint, uint>(999, 999, 13, 6) },
+		{ "[Game] init challenge '$fff$sC03'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 3) },
+		{ "[Game] init challenge '$fff$sC04'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 7) },
+		{ "[Game] init challenge '$fff$sC05'", new Tuple<uint, uint, uint, uint>(999, 999, 21, 21) },
+		{ "[Game] init challenge '$fff$sC06'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 9) },
+		{ "[Game] init challenge '$fff$sC07'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
+		{ "[Game] init challenge '$fff$sC08'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 5) },
+		{ "[Game] init challenge '$fff$sC09'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 9) },
+		{ "[Game] init challenge '$fff$sC10'", new Tuple<uint, uint, uint, uint>(999, 999, 24, 24) },
+		{ "[Game] init challenge '$fff$sC11'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 8) },
+		{ "[Game] init challenge '$fff$sC12'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 7) },
+		{ "[Game] init challenge '$fff$sC13'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 3) },
+		{ "[Game] init challenge '$fff$sC14'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 9) },
+		{ "[Game] init challenge '$fff$sC15'", new Tuple<uint, uint, uint, uint>(999, 999, 24, 30) },
+		{ "[Game] init challenge '$fff$sD01'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 12) },
+		{ "[Game] init challenge '$fff$sD02'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
+		{ "[Game] init challenge '$fff$sD03'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 3) },
+		{ "[Game] init challenge '$fff$sD04'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 10) },
+		{ "[Game] init challenge '$fff$sD05'", new Tuple<uint, uint, uint, uint>(999, 999, 18, 27) },
+		{ "[Game] init challenge '$fff$sD06'", new Tuple<uint, uint, uint, uint>(999, 999, 10, 9) },
+		{ "[Game] init challenge '$fff$sD07'", new Tuple<uint, uint, uint, uint>(999, 999, 11, 8) },
+		{ "[Game] init challenge '$fff$sD08'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 4) },
+		{ "[Game] init challenge '$fff$sD09'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 13) },
+		{ "[Game] init challenge '$fff$sD10'", new Tuple<uint, uint, uint, uint>(999, 999, 30, 50) },
+		{ "[Game] init challenge '$fff$sD11'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 8) },
+		{ "[Game] init challenge '$fff$sD12'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 999) },
+		{ "[Game] init challenge '$fff$sD13'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 999) },
+		{ "[Game] init challenge '$fff$sD14'", new Tuple<uint, uint, uint, uint>(999, 999, 13, 999) },
+		{ "[Game] init challenge '$fff$sD15'", new Tuple<uint, uint, uint, uint>(999, 999, 90, 999) },
+		{ "[Game] init challenge '$fff$sE01'", new Tuple<uint, uint, uint, uint>(999, 999, 11, 999) },
+		{ "[Game] init challenge '$fff$sE02'", new Tuple<uint, uint, uint, uint>(999, 999, 16, 999) },
+		{ "[Game] init challenge '$fff$sE03'", new Tuple<uint, uint, uint, uint>(999, 999, 25, 999) },
+		{ "[Game] init challenge '$fff$sE04'", new Tuple<uint, uint, uint, uint>(999, 999, 25, 999) },
+		{ "[Game] init challenge '$fff$sE05'", new Tuple<uint, uint, uint, uint>(999, 999, 150, 999) }
+	};
+
+	settings.Add("SplitOnMapChange", true, "Auto split on map change:");
+	settings.Add("SplitOnMapExit", true, "When leaving a map.", "SplitOnMapChange");
+	settings.Add("SplitOnMapLoad", false, "When entering a map.", "SplitOnMapChange");
+	settings.Add("SplitOnMapFinish", false, "Auto split when finishing a map.");
+	foreach (var map in vars.Maps)
+		settings.Add(map.Key, true, map.Key.Substring(29, 3), "SplitOnMapFinish");
 }
 
 init
@@ -189,8 +207,11 @@ update
 {
 	vars.Watchers.UpdateAll(game);
 	// Get category from Splits Editor
-	if (timer.CurrentPhase == TimerPhase.NotRunning)
+	if ((timer.CurrentPhase == TimerPhase.NotRunning) && (vars.CategoryName != timer.Run.CategoryName))
+	{
 		vars.CategoryName = timer.Run.CategoryName;
+		vars.FirstMap = vars.GetFirstMap(vars.CategoryName);
+	}
 	if (vars.Init)
 	{
 		if ((vars.GameInfo.Old != null) && (vars.GameInfo.Current != null))
@@ -222,43 +243,15 @@ isLoading
 
 start
 {
-	if (vars.LoadingState.Current)
-		return false;
-	switch (vars.CategoryName as string)
-	{
-		case "All Flags":
-		case "White":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sA01'");
-		case "Green":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sB01'");
-		case "Blue":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sC01'");
-		case "Red":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sD01'");
-		case "Black":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sE01'");
-	}
+	if ((vars.LoadingState.Old) && (!vars.LoadingState.Current))
+		return (vars.CurrentMapName == vars.FirstMap);
 	return false;
 }
 
 reset
 {
-	if (vars.GameInfo.Old == vars.GameInfo.Current)
-		return false;
-	switch (vars.CategoryName as string)
-	{
-		case "All Flags":
-		case "White":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sA01'");
-		case "Green":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sB01'");
-		case "Blue":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sC01'");
-		case "Red":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sD01'");
-		case "Black":
-			return (vars.GameInfo.Current == "[Game] init challenge '$fff$sE01'");
-	}
+	if (vars.OldMapName != vars.CurrentMapName)
+		return (vars.CurrentMapName == vars.FirstMap);
 	return false;
 }
 
