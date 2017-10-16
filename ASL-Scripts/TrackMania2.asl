@@ -1,101 +1,68 @@
 ﻿state("ManiaPlanet")
 {
-	// 2017-06-01 11:50:47 AM
-	// SoI: 0x19AA000
+	// 2017-31-08 02:31:12 PM
+	// SoI: 0x19C3000
 	// https://github.com/NeKzor
 }
 
 startup
 {
+	// Memory stuff
 	vars.GameRestart = false;
 	vars.FirstMap = string.Empty;
 	vars.CategoryName = string.Empty;
+	vars.GameInfo = string.Empty;
 	vars.Watchers = new MemoryWatcherList();
 	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
 	vars.GameInfo = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
-	vars.CpCounter = new MemoryWatcher<int>(IntPtr.Zero);
+	vars.ERaceState = new MemoryWatcher<int>(IntPtr.Zero);
 	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
 	{
-		var LoadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00",	// cmp dword ptr [ManiaPlanet.exe+17B4220],00
-												 "8B 0D ?? ?? ?? ??",		// mov ecx,[ManiaPlanet.exe+17B4224]
-												 "75 08",					// jne ManiaPlanet.exe+7E7B77
-												 "85 C9");					// test ecx,ecx
+		// \x83\x3D\x00\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00\x75\x08\x85\xC9 xx????xxx????xxxx
+		var LoadingTarget = new SigScanTarget(9,
+			"83 3D ?? ?? ?? ?? 00",		// cmp dword ptr [ManiaPlanet.exe+17B4220],00
+			"8B 0D ?? ?? ?? ??",		// mov ecx,[ManiaPlanet.exe+17B4224]
+			"75 08",					// jne ManiaPlanet.exe+7E7B77
+			"85 C9"						// test ecx,ecx
+		);
 
-		var GameInfoTarget = new SigScanTarget(11, "CE",					// into 
-												   "6F",					// outsd 
-												   "01 02",					// add [edx],eax
-												   "00 00",					// add [eax],al
-												   "00 00",					// add [eax],al
-												   "00 00",					// add [eax],al
-												   "00 78 21");				// add [eax+21],bh
-
-
-		var CpsTarget = new SigScanTarget(12, "89 41 04",					// mov [ecx+04],eax
-											  "C7 41 08 ?? ?? ?? ??",		// mov [ecx+08],00000000
-											  "8B 0D ?? ?? ?? ??",			// mov ecx,[ManiaPlanet.exe+17B3E40]
-											  "E8 ?? ?? ?? ??",				// call ManiaPlanet.exe+7D5F40
-											  "85 DB");						// test ebx,ebx
-
-		LoadingTarget.OnFound = (proc, _, ptr) => proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
-		GameInfoTarget.OnFound = (proc, _, ptr) =>
+		LoadingTarget.OnFound = (proc, _, ptr) =>
 		{
-			if (proc.ReadPointer(ptr, out ptr))
-				if (proc.ReadPointer(ptr + 0x354, out ptr))
-					if (proc.ReadPointer(ptr + 0x110, out ptr))
-						if (proc.ReadPointer(ptr + 0x48C, out ptr))
-							if (proc.ReadPointer(ptr + 0x28, out ptr))
-								return ptr + 0x0;
-			return IntPtr.Zero;
-		};
-		CpsTarget.OnFound = (proc, _, ptr) =>
-		{
-			if (proc.ReadPointer(ptr, out ptr))
-				if (proc.ReadPointer(ptr, out ptr))
-					if (proc.ReadPointer(ptr + 0x14, out ptr))
-						return ptr + 0xAC;
-			return IntPtr.Zero;
+			//print("LoadingTarget = 0x" + ptr.ToString("X"));
+			return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
 		};
 
 		var Scanner = new SignatureScanner(gameProc, module.BaseAddress, module.ModuleMemorySize);
-		var LoadingAdr = (IntPtr)Scanner.Scan(LoadingTarget);
-		var GameInfoAdr = (IntPtr)Scanner.Scan(GameInfoTarget);
-		var CpsAdr = (IntPtr)Scanner.Scan(CpsTarget);
+		var LoadingAddr = (IntPtr)Scanner.Scan(LoadingTarget);
 
-		if ((LoadingAdr != IntPtr.Zero) && (GameInfoAdr != IntPtr.Zero) && (CpsAdr != IntPtr.Zero))
+		if (LoadingAddr != IntPtr.Zero)
 		{
-			vars.LoadingState = new MemoryWatcher<bool>(LoadingAdr);
-			vars.GameInfo = new StringWatcher(GameInfoAdr, ReadStringType.ASCII, 33);
-			vars.CpCounter = new MemoryWatcher<int>(CpsAdr);
+			vars.LoadingState = new MemoryWatcher<bool>(LoadingAddr);
+
+			// Don't have time to make sigs for this :^)
+			vars.GameInfo = new StringWatcher(new DeepPointer("ManiaPlanet.exe", 0x017F5448, 0x20, 0x240, 0x0), ReadStringType.ASCII, 33);
+			vars.ERaceState = new MemoryWatcher<int>(new DeepPointer("ManiaPlanet.exe", 0x017E9B54, 0xC, 0x2D8, 0x104, 0xDC, 0x108));
 
 			vars.Watchers.Clear();
 			vars.Watchers.AddRange(new MemoryWatcher[]
 			{
 				vars.LoadingState,
 				vars.GameInfo,
-				vars.CpCounter
+				vars.ERaceState
 			});
 			vars.Watchers.UpdateAll(gameProc);
 			return true;
 		}
 		return false;
 	});
-	vars.GetRequiredCps = (Func<string, uint>)((mapName) =>
+
+	// Used for splitting
+	vars.CompletedMaps = new List<string>();
+	vars.MapSplit = (Func<bool, bool>)((state) =>
 	{
-		if (vars.Maps.ContainsKey(mapName))
-		{
-			switch (timer.Run.GameName)
-			{
-				case "TrackMania² Canyon":
-					return vars.Maps[mapName].Item1;
-				case "TrackMania² Lagoon":
-					return vars.Maps[mapName].Item2;
-				case "TrackMania² Stadium":
-					return vars.Maps[mapName].Item3;
-				case "TrackMania² Valley":
-					return vars.Maps[mapName].Item4;
-			}
-		}
-		return 1337u;
+		if (state)
+			vars.CompletedMaps.Add(vars.CurrentMapName);
+		return state;
 	});
 	vars.GetFirstMap = (Func<string, string>)((categoryName) =>
 	{
@@ -116,82 +83,27 @@ startup
 				return string.Empty;
 		}
 	});
-	// Thanks to RastaBobby for collecting most of the cp data
-	vars.Maps = new Dictionary<string, Tuple<uint, uint, uint, uint>>()
-	{
-		{ "[Game] init challenge '$fff$sA01'", new Tuple<uint, uint, uint, uint>(3, 4, 5, 4) },
-		{ "[Game] init challenge '$fff$sA02'", new Tuple<uint, uint, uint, uint>(2, 6, 5, 4) },
-		{ "[Game] init challenge '$fff$sA03'", new Tuple<uint, uint, uint, uint>(1, 3, 3, 4) },
-		{ "[Game] init challenge '$fff$sA04'", new Tuple<uint, uint, uint, uint>(3, 4, 6, 3) },
-		{ "[Game] init challenge '$fff$sA05'", new Tuple<uint, uint, uint, uint>(15, 14, 12, 12) },
-		{ "[Game] init challenge '$fff$sA06'", new Tuple<uint, uint, uint, uint>(3, 5, 5, 5) },
-		{ "[Game] init challenge '$fff$sA07'", new Tuple<uint, uint, uint, uint>(3, 2, 5, 5) },
-		{ "[Game] init challenge '$fff$sA08'", new Tuple<uint, uint, uint, uint>(2, 2, 1, 2) },
-		{ "[Game] init challenge '$fff$sA09'", new Tuple<uint, uint, uint, uint>(4, 4, 6, 6) },
-		{ "[Game] init challenge '$fff$sA10'", new Tuple<uint, uint, uint, uint>(20, 12, 18, 15) },
-		{ "[Game] init challenge '$fff$sA11'", new Tuple<uint, uint, uint, uint>(3, 4, 5, 4) },
-		{ "[Game] init challenge '$fff$sA12'", new Tuple<uint, uint, uint, uint>(4, 6, 6, 5) },
-		{ "[Game] init challenge '$fff$sA13'", new Tuple<uint, uint, uint, uint>(2, 3, 2, 3) },
-		{ "[Game] init challenge '$fff$sA14'", new Tuple<uint, uint, uint, uint>(3, 5, 4, 5) },
-		{ "[Game] init challenge '$fff$sA15'", new Tuple<uint, uint, uint, uint>(20, 24, 21, 15) },
-		{ "[Game] init challenge '$fff$sB01'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 6) },
-		{ "[Game] init challenge '$fff$sB02'", new Tuple<uint, uint, uint, uint>(999, 999, 5, 5) },
-		{ "[Game] init challenge '$fff$sB03'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 4) },
-		{ "[Game] init challenge '$fff$sB04'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
-		{ "[Game] init challenge '$fff$sB05'", new Tuple<uint, uint, uint, uint>(999, 999, 21, 18) },
-		{ "[Game] init challenge '$fff$sB06'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 7) },
-		{ "[Game] init challenge '$fff$sB07'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
-		{ "[Game] init challenge '$fff$sB08'", new Tuple<uint, uint, uint, uint>(999, 999, 5, 3) },
-		{ "[Game] init challenge '$fff$sB09'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 4) },
-		{ "[Game] init challenge '$fff$sB10'", new Tuple<uint, uint, uint, uint>(999, 999, 18, 15) },
-		{ "[Game] init challenge '$fff$sB11'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 5) },
-		{ "[Game] init challenge '$fff$sB12'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 7) },
-		{ "[Game] init challenge '$fff$sB13'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 5) },
-		{ "[Game] init challenge '$fff$sB14'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 6) },
-		{ "[Game] init challenge '$fff$sB15'", new Tuple<uint, uint, uint, uint>(999, 999, 15, 21) },
-		{ "[Game] init challenge '$fff$sC01'", new Tuple<uint, uint, uint, uint>(999, 999, 10, 7) },
-		{ "[Game] init challenge '$fff$sC02'", new Tuple<uint, uint, uint, uint>(999, 999, 13, 6) },
-		{ "[Game] init challenge '$fff$sC03'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 3) },
-		{ "[Game] init challenge '$fff$sC04'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 7) },
-		{ "[Game] init challenge '$fff$sC05'", new Tuple<uint, uint, uint, uint>(999, 999, 21, 21) },
-		{ "[Game] init challenge '$fff$sC06'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 9) },
-		{ "[Game] init challenge '$fff$sC07'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
-		{ "[Game] init challenge '$fff$sC08'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 5) },
-		{ "[Game] init challenge '$fff$sC09'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 9) },
-		{ "[Game] init challenge '$fff$sC10'", new Tuple<uint, uint, uint, uint>(999, 999, 24, 24) },
-		{ "[Game] init challenge '$fff$sC11'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 8) },
-		{ "[Game] init challenge '$fff$sC12'", new Tuple<uint, uint, uint, uint>(999, 999, 9, 7) },
-		{ "[Game] init challenge '$fff$sC13'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 3) },
-		{ "[Game] init challenge '$fff$sC14'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 9) },
-		{ "[Game] init challenge '$fff$sC15'", new Tuple<uint, uint, uint, uint>(999, 999, 24, 30) },
-		{ "[Game] init challenge '$fff$sD01'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 12) },
-		{ "[Game] init challenge '$fff$sD02'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 6) },
-		{ "[Game] init challenge '$fff$sD03'", new Tuple<uint, uint, uint, uint>(999, 999, 6, 3) },
-		{ "[Game] init challenge '$fff$sD04'", new Tuple<uint, uint, uint, uint>(999, 999, 7, 10) },
-		{ "[Game] init challenge '$fff$sD05'", new Tuple<uint, uint, uint, uint>(999, 999, 18, 27) },
-		{ "[Game] init challenge '$fff$sD06'", new Tuple<uint, uint, uint, uint>(999, 999, 10, 9) },
-		{ "[Game] init challenge '$fff$sD07'", new Tuple<uint, uint, uint, uint>(999, 999, 11, 8) },
-		{ "[Game] init challenge '$fff$sD08'", new Tuple<uint, uint, uint, uint>(999, 999, 3, 4) },
-		{ "[Game] init challenge '$fff$sD09'", new Tuple<uint, uint, uint, uint>(999, 999, 8, 13) },
-		{ "[Game] init challenge '$fff$sD10'", new Tuple<uint, uint, uint, uint>(999, 999, 30, 50) },
-		{ "[Game] init challenge '$fff$sD11'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 8) },
-		{ "[Game] init challenge '$fff$sD12'", new Tuple<uint, uint, uint, uint>(999, 999, 12, 999) },
-		{ "[Game] init challenge '$fff$sD13'", new Tuple<uint, uint, uint, uint>(999, 999, 4, 999) },
-		{ "[Game] init challenge '$fff$sD14'", new Tuple<uint, uint, uint, uint>(999, 999, 13, 999) },
-		{ "[Game] init challenge '$fff$sD15'", new Tuple<uint, uint, uint, uint>(999, 999, 90, 999) },
-		{ "[Game] init challenge '$fff$sE01'", new Tuple<uint, uint, uint, uint>(999, 999, 11, 999) },
-		{ "[Game] init challenge '$fff$sE02'", new Tuple<uint, uint, uint, uint>(999, 999, 16, 999) },
-		{ "[Game] init challenge '$fff$sE03'", new Tuple<uint, uint, uint, uint>(999, 999, 25, 999) },
-		{ "[Game] init challenge '$fff$sE04'", new Tuple<uint, uint, uint, uint>(999, 999, 25, 999) },
-		{ "[Game] init challenge '$fff$sE05'", new Tuple<uint, uint, uint, uint>(999, 999, 150, 999) }
-	};
 
-	settings.Add("SplitOnMapChange", true, "Auto split on map change:");
-	settings.Add("SplitOnMapExit", true, "When leaving a map.", "SplitOnMapChange");
+	// Settings
+	settings.Add("SplitOnMapChange", false, "Auto split on map change:");
+	settings.Add("SplitOnMapExit", false, "When leaving a map.", "SplitOnMapChange");
 	settings.Add("SplitOnMapLoad", false, "When entering a map.", "SplitOnMapChange");
-	settings.Add("SplitOnMapFinish", false, "Auto split when finishing a map.");
-	foreach (var map in vars.Maps)
-		settings.Add(map.Key, true, map.Key.Substring(29, 3), "SplitOnMapFinish");
+	settings.Add("SplitOnMapFinish", true, "Auto split when finishing a map.");
+
+	// Generate map list + settings
+	vars.Maps = new List<string>();
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 1; j <= 15; j++)
+		{
+			if ((j > 5) && (i == 4))
+				goto done;
+			var map = string.Format("[Game] init challenge '$fff$s{0}{1}'", (char)(i + 65), j.ToString("D2"));
+			vars.Maps.Add(map);
+			settings.Add(map, true, map.Substring(29, 3), "SplitOnMapFinish");
+		}
+	}
+done:
 }
 
 init
@@ -200,7 +112,6 @@ init
 	vars.Module = modules.First();
 	vars.OldMapName = string.Empty;
 	vars.CurrentMapName = string.Empty;
-	vars.RequiredCps = 1337u;
 }
 
 update
@@ -220,10 +131,7 @@ update
 			if (vars.GameInfo.Current != vars.GameInfo.Old)
 			{
 				if (vars.GameInfo.Current.StartsWith("[Game] init challenge"))
-				{
 					vars.CurrentMapName = vars.GameInfo.Current;
-					vars.RequiredCps = vars.GetRequiredCps(vars.CurrentMapName);
-				}
 				else if ((vars.GameInfo.Current.StartsWith("[Game] main menu")) || (vars.GameInfo.Current.StartsWith("Script 'Media/Apps/MainMenu")))
 					vars.CurrentMapName = "[Game] main menu";
 			}
@@ -243,16 +151,15 @@ isLoading
 
 start
 {
-	if ((vars.LoadingState.Old) && (!vars.LoadingState.Current))
-		return (vars.CurrentMapName == vars.FirstMap);
-	return false;
+	return (vars.LoadingState.Old) && (!vars.LoadingState.Current) && (vars.CurrentMapName == vars.FirstMap);
 }
 
 reset
 {
-	if (vars.OldMapName != vars.CurrentMapName)
-		return (vars.CurrentMapName == vars.FirstMap);
-	return false;
+	if ((vars.OldMapName == vars.CurrentMapName) || (vars.CurrentMapName != vars.FirstMap))
+		return false;
+	vars.CompletedMaps.Clear();
+	return true;
 }
 
 split
@@ -262,29 +169,28 @@ split
 		return true;
 	if ((settings["SplitOnMapLoad"]) && (vars.OldMapName.StartsWith("[Game] main menu")) && (vars.CurrentMapName.StartsWith("[Game] init challenge")))
 		return true;
+
 	// Finish line
-	if (vars.CpCounter.Current != vars.CpCounter.Old)
+	if ((vars.ERaceState.Old == 1) && (vars.ERaceState.Current == 2) && (!vars.LoadingState.Current) && (!vars.CompletedMaps.Contains(vars.CurrentMapName)))
 	{
-		if (vars.CpCounter.Current == vars.RequiredCps)
+		// End of any map
+		if (settings[vars.CurrentMapName])
+			return vars.MapSplit(true);
+
+		// End of category
+		switch (vars.CategoryName as string)
 		{
-			// End of any map
-			if (settings[vars.CurrentMapName])
-				return true;
-			// End of category
-			switch (vars.CategoryName as string)
-			{
-				case "White":
-					return (vars.CurrentMapName == "[Game] init challenge '$fff$sA15'");
-				case "Green":
-					return (vars.CurrentMapName == "[Game] init challenge '$fff$sB15'");
-				case "Blue":
-					return (vars.CurrentMapName == "[Game] init challenge '$fff$sC15'");
-				case "Red":
-					return (vars.CurrentMapName == "[Game] init challenge '$fff$sD15'");
-				case "Black":
-				case "All Flags":
-					return (vars.CurrentMapName == "[Game] init challenge '$fff$sE05'");
-			}
+			case "White":
+				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sA15'");
+			case "Green":
+				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sB15'");
+			case "Blue":
+				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sC15'");
+			case "Red":
+				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sD15'");
+			case "Black":
+			case "All Flags":
+				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sE05'");
 		}
 	}
 	return false;

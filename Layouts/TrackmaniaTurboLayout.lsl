@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Layout version="1.6.1">
   <Mode>Vertical</Mode>
-  <X>24</X>
-  <Y>22</Y>
+  <X>3</X>
+  <Y>0</Y>
   <VerticalWidth>203</VerticalWidth>
   <VerticalHeight>414</VerticalHeight>
   <HorizontalWidth>-1</HorizontalWidth>
@@ -175,7 +175,7 @@
       <Path>LiveSplit.ScriptableAutoSplit.dll</Path>
       <Settings>
         <Version>1.5</Version>
-        <ScriptPath>..\ASL-Scripts\TrackmaniaTurbo.asl</ScriptPath>
+        <ScriptPath>C:\Users\Thomas\Documents\Visual Studio 2017\Projects\ASL-Scripts\ASL-Scripts\TrackMania2.asl</ScriptPath>
         <Start>True</Start>
         <Reset>True</Reset>
         <Split>True</Split>
@@ -183,243 +183,72 @@
           <Setting id="SplitOnMapChange" type="bool">True</Setting>
           <Setting id="SplitOnMapExit" type="bool">True</Setting>
           <Setting id="SplitOnMapLoad" type="bool">False</Setting>
-          <Setting id="Categories" type="bool">True</Setting>
-          <Setting id="AllEnvironments" type="bool">True</Setting>
-          <Setting id="AllFlagsAllEnvironments" type="bool">True</Setting>
-          <Setting id="WhiteFlagAllEnvironments" type="bool">False</Setting>
-          <Setting id="GreenFlagAllEnvironments" type="bool">False</Setting>
-          <Setting id="BlueFlagAllEnvironments" type="bool">False</Setting>
-          <Setting id="RedFlagAllEnvironments" type="bool">False</Setting>
-          <Setting id="BlackFlagAllEnvironments" type="bool">False</Setting>
-          <Setting id="RollercoasterLagoon" type="bool">False</Setting>
-          <Setting id="AllFlagsRollercoasterLagoon" type="bool">False</Setting>
-          <Setting id="WhiteFlagRollercoasterLagoon" type="bool">False</Setting>
-          <Setting id="GreenFlagRollercoasterLagoon" type="bool">False</Setting>
-          <Setting id="BlueFlagRollercoasterLagoon" type="bool">False</Setting>
-          <Setting id="RedFlagRollercoasterLagoon" type="bool">False</Setting>
-          <Setting id="BlackFlagRollercoasterLagoon" type="bool">False</Setting>
-          <Setting id="InternationalStadium" type="bool">False</Setting>
-          <Setting id="AllFlagsInternationalStadium" type="bool">False</Setting>
-          <Setting id="WhiteFlagInternationalStadium" type="bool">False</Setting>
-          <Setting id="GreenFlagInternationalStadium" type="bool">False</Setting>
-          <Setting id="BlueFlagInternationalStadium" type="bool">False</Setting>
-          <Setting id="RedFlagInternationalStadium" type="bool">False</Setting>
-          <Setting id="BlackFlagInternationalStadium" type="bool">False</Setting>
-          <Setting id="CanyonGrandDrift" type="bool">False</Setting>
-          <Setting id="AllFlagsCanyonGrandDrift" type="bool">False</Setting>
-          <Setting id="WhiteFlagCanyonGrandDrift" type="bool">False</Setting>
-          <Setting id="GreenFlagCanyonGrandDrift" type="bool">False</Setting>
-          <Setting id="BlueFlagCanyonGrandDrift" type="bool">False</Setting>
-          <Setting id="RedFlagCanyonGrandDrift" type="bool">False</Setting>
-          <Setting id="BlackFlagCanyonGrandDrift" type="bool">False</Setting>
-          <Setting id="ValleyDownAndDirty" type="bool">False</Setting>
-          <Setting id="AllFlagsValleyDownAndDirty" type="bool">False</Setting>
-          <Setting id="WhiteFlagValleyDownAndDirty" type="bool">False</Setting>
-          <Setting id="GreenFlagValleyDownAndDirty" type="bool">False</Setting>
-          <Setting id="BlueFlagValleyDownAndDirty" type="bool">False</Setting>
-          <Setting id="RedFlagValleyDownAndDirty" type="bool">False</Setting>
-          <Setting id="BlackFlagValleyDownAndDirty" type="bool">False</Setting>
-          <Setting id="SplitOnMapFinish" type="bool">False</Setting>
-          <Setting id="[Game] init challenge '001'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '002'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '003'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '004'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '005'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '006'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '007'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '008'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '009'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '010'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '011'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '012'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '013'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '014'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '015'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '016'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '017'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '018'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '019'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '020'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '021'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '022'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '023'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '024'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '025'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '026'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '027'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '028'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '029'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '030'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '031'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '032'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '033'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '034'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '035'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '036'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '037'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '038'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '039'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '040'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '041'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '042'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '043'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '044'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '045'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '046'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '047'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '048'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '049'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '050'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '051'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '052'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '053'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '054'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '055'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '056'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '057'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '058'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '059'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '060'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '061'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '062'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '063'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '064'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '065'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '066'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '067'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '068'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '069'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '070'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '071'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '072'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '073'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '074'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '075'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '076'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '077'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '078'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '079'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '080'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '081'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '082'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '083'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '084'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '085'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '086'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '087'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '088'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '089'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '090'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '091'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '092'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '093'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '094'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '095'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '096'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '097'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '098'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '099'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '100'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '101'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '102'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '103'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '104'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '105'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '106'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '107'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '108'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '109'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '110'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '111'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '112'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '113'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '114'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '115'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '116'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '117'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '118'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '119'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '120'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '121'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '122'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '123'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '124'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '125'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '126'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '127'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '128'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '129'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '130'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '131'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '132'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '133'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '134'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '135'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '136'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '137'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '138'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '139'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '140'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '141'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '142'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '143'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '144'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '145'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '146'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '147'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '148'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '149'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '150'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '151'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '152'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '153'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '154'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '155'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '156'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '157'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '158'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '159'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '160'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '161'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '162'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '163'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '164'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '165'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '166'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '167'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '168'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '169'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '170'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '171'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '172'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '173'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '174'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '175'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '176'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '177'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '178'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '179'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '180'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '181'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '182'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '183'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '184'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '185'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '186'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '187'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '188'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '189'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '190'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '191'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '192'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '193'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '194'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '195'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '196'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '197'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '198'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '199'" type="bool">True</Setting>
-          <Setting id="[Game] init challenge '200'" type="bool">True</Setting>
+          <Setting id="SplitOnMapFinish" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA01'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA02'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA03'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA04'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA05'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA06'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA07'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA08'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA09'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA10'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA11'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA12'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA13'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA14'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sA15'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB01'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB02'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB03'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB04'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB05'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB06'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB07'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB08'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB09'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB10'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB11'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB12'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB13'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB14'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sB15'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC01'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC02'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC03'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC04'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC05'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC06'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC07'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC08'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC09'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC10'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC11'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC12'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC13'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC14'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sC15'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD01'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD02'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD03'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD04'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD05'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD06'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD07'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD08'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD09'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD10'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD11'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD12'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD13'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD14'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sD15'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sE01'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sE02'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sE03'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sE04'" type="bool">True</Setting>
+          <Setting id="[Game] init challenge '$fff$sE05'" type="bool">True</Setting>
         </CustomSettings>
       </Settings>
     </Component>

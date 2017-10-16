@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Layout version="1.6.1">
   <Mode>Vertical</Mode>
-  <X>1397</X>
-  <Y>236</Y>
+  <X>159</X>
+  <Y>29</Y>
   <VerticalWidth>203</VerticalWidth>
   <VerticalHeight>406</VerticalHeight>
   <HorizontalWidth>-1</HorizontalWidth>
@@ -152,14 +152,11 @@
       <Path>LiveSplit.ScriptableAutoSplit.dll</Path>
       <Settings>
         <Version>1.5</Version>
-        <ScriptPath>C:\Users\Thomas\Documents\Visual Studio 2017\Projects\ASL-Scripts\ASL-Scripts\TrackMania2Stadium.asl</ScriptPath>
+        <ScriptPath>C:\Users\Thomas\Documents\GitHub\ASL-Scripts\ASL-Scripts\TrackMania2.asl</ScriptPath>
         <Start>True</Start>
         <Reset>True</Reset>
         <Split>True</Split>
         <CustomSettings>
-          <Setting id="SplitOnMapChange" type="bool">False</Setting>
-          <Setting id="SplitOnMapExit" type="bool">True</Setting>
-          <Setting id="SplitOnMapLoad" type="bool">False</Setting>
           <Setting id="SplitOnMapFinish" type="bool">True</Setting>
           <Setting id="[Game] init challenge '$fff$sA01'" type="bool">True</Setting>
           <Setting id="[Game] init challenge '$fff$sA02'" type="bool">True</Setting>
@@ -226,6 +223,9 @@
           <Setting id="[Game] init challenge '$fff$sE03'" type="bool">True</Setting>
           <Setting id="[Game] init challenge '$fff$sE04'" type="bool">True</Setting>
           <Setting id="[Game] init challenge '$fff$sE05'" type="bool">True</Setting>
+          <Setting id="SplitOnMapChange" type="bool">False</Setting>
+          <Setting id="SplitOnMapExit" type="bool">False</Setting>
+          <Setting id="SplitOnMapLoad" type="bool">False</Setting>
         </CustomSettings>
       </Settings>
     </Component>
