@@ -14,41 +14,46 @@ startup
 	vars.GameInfo = string.Empty;
 	vars.Watchers = new MemoryWatcherList();
 	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
+	vars.RaceState = new MemoryWatcher<int>(IntPtr.Zero);
 	vars.GameInfo = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
-	vars.ERaceState = new MemoryWatcher<int>(IntPtr.Zero);
 	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
 	{
 		// \x83\x3D\x00\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00\x75\x08\x85\xC9 xx????xxx????xxxx
-		var LoadingTarget = new SigScanTarget(9,
-			"83 3D ?? ?? ?? ?? 00",		// cmp dword ptr [ManiaPlanet.exe+17B4220],00
-			"8B 0D ?? ?? ?? ??",		// mov ecx,[ManiaPlanet.exe+17B4224]
-			"75 08",					// jne ManiaPlanet.exe+7E7B77
-			"85 C9"						// test ecx,ecx
-		);
+		var LoadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00 8B 0D ?? ?? ?? ?? 75 08 85 C9");
+
+		// \x54\x9B\x7E\x01\x6C\x9B\x7E\x01\x38\x9B\x7E\x01 xxxxxxxxxxxx
+		var RaceStateTarget = new SigScanTarget(0, "54 9B 7E 01 6C 9B 7E 01 38 9B 7E 01");
 
 		LoadingTarget.OnFound = (proc, _, ptr) =>
 		{
 			//print("LoadingTarget = 0x" + ptr.ToString("X"));
 			return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
 		};
+		RaceStateTarget.OnFound = (proc, _, ptr) =>
+		{
+			//print("RaceStateTarget = 0x" + ptr.ToString("X"));
+			return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
+		};
 
 		var Scanner = new SignatureScanner(gameProc, module.BaseAddress, module.ModuleMemorySize);
 		var LoadingAddr = (IntPtr)Scanner.Scan(LoadingTarget);
+		var RaceStateAddr = IntPtr.Zero;
+		var RaceStatePtr = new DeepPointer("ManiaPlanet.exe", (int)Scanner.Scan(RaceStateTarget), 0xC, 0x2D8, 0x104, 0xDC, 0x108);
 
-		if (LoadingAddr != IntPtr.Zero)
+		if ((LoadingAddr != IntPtr.Zero) && (RaceStatePtr.DerefOffsets(gameProc, out RaceStateAddr)))
 		{
-			vars.LoadingState = new MemoryWatcher<bool>(LoadingAddr);
+			//print("RaceStatePtr = " + RaceStateAddr.ToString("X"));
 
-			// Don't have time to make sigs for this :^)
+			vars.LoadingState = new MemoryWatcher<bool>(LoadingAddr);
+			vars.RaceState = new MemoryWatcher<int>(RaceStateAddr);
 			vars.GameInfo = new StringWatcher(new DeepPointer("ManiaPlanet.exe", 0x017F5448, 0x20, 0x240, 0x0), ReadStringType.ASCII, 33);
-			vars.ERaceState = new MemoryWatcher<int>(new DeepPointer("ManiaPlanet.exe", 0x017E9B54, 0xC, 0x2D8, 0x104, 0xDC, 0x108));
 
 			vars.Watchers.Clear();
 			vars.Watchers.AddRange(new MemoryWatcher[]
 			{
 				vars.LoadingState,
 				vars.GameInfo,
-				vars.ERaceState
+				vars.RaceState
 			});
 			vars.Watchers.UpdateAll(gameProc);
 			return true;
@@ -80,7 +85,7 @@ startup
 			case "Black":
 				return "[Game] init challenge '$fff$sE01'";
 			default:
-				return string.Empty;
+				return "[Game] init challenge '$fff$sA01'";
 		}
 	});
 
@@ -171,7 +176,7 @@ split
 		return true;
 
 	// Finish line
-	if ((vars.ERaceState.Old == 1) && (vars.ERaceState.Current == 2) && (!vars.LoadingState.Current) && (!vars.CompletedMaps.Contains(vars.CurrentMapName)))
+	if ((vars.RaceState.Old == 1) && (vars.RaceState.Current == 2) && (!vars.LoadingState.Current) && (!vars.CompletedMaps.Contains(vars.CurrentMapName)))
 	{
 		// End of any map
 		if (settings[vars.CurrentMapName])
