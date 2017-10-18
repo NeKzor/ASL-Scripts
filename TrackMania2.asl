@@ -1,6 +1,6 @@
 ﻿state("ManiaPlanet")
 {
-	// 2017-31-08 02:31:12 PM
+	// 2017-08-31 02:31:12 PM
 	// SoI: 0x19C3000
 	// https://github.com/NeKzor
 }
@@ -9,8 +9,6 @@ startup
 {
 	// Memory stuff
 	vars.GameRestart = false;
-	vars.FirstMap = string.Empty;
-	vars.CategoryName = string.Empty;
 	vars.GameInfo = string.Empty;
 	vars.Watchers = new MemoryWatcherList();
 	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
@@ -18,6 +16,8 @@ startup
 	vars.GameInfo = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
 	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
 	{
+		print("[ASL] Scanning!");
+		
 		// \x83\x3D\x00\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00\x75\x08\x85\xC9 xx????xxx????xxxx
 		var LoadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00 8B 0D ?? ?? ?? ?? 75 08 85 C9");
 
@@ -26,34 +26,34 @@ startup
 
 		LoadingTarget.OnFound = (proc, _, ptr) =>
 		{
-			//print("LoadingTarget = 0x" + ptr.ToString("X"));
+			print("[ASL] LoadingTarget = 0x" + ptr.ToString("X"));
 			return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
 		};
 		RaceStateTarget.OnFound = (proc, _, ptr) =>
 		{
-			//print("RaceStateTarget = 0x" + ptr.ToString("X"));
+			print("[ASL] RaceStateTarget = 0x" + ptr.ToString("X"));
 			return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
 		};
 
 		var Scanner = new SignatureScanner(gameProc, module.BaseAddress, module.ModuleMemorySize);
-		var LoadingAddr = (IntPtr)Scanner.Scan(LoadingTarget);
-		var RaceStateAddr = IntPtr.Zero;
-		var RaceStatePtr = new DeepPointer("ManiaPlanet.exe", (int)Scanner.Scan(RaceStateTarget), 0xC, 0x2D8, 0x104, 0xDC, 0x108);
-
-		if ((LoadingAddr != IntPtr.Zero) && (RaceStatePtr.DerefOffsets(gameProc, out RaceStateAddr)))
+		var LoadingAddr = Scanner.Scan(LoadingTarget);
+		var RaceStateAddr = Scanner.Scan(RaceStateTarget);
+		print("[ASL] LoadingAddr = 0x" + LoadingAddr.ToString("X"));
+		print("[ASL] RaceStateAddr = 0x" + RaceStateAddr.ToString("X"));
+		
+		if ((LoadingAddr != IntPtr.Zero) && (RaceStateAddr != IntPtr.Zero))
 		{
-			//print("RaceStatePtr = " + RaceStateAddr.ToString("X"));
-
+			print("[ASL] Scan Completed!");
 			vars.LoadingState = new MemoryWatcher<bool>(LoadingAddr);
-			vars.RaceState = new MemoryWatcher<int>(RaceStateAddr);
+			vars.RaceState = new MemoryWatcher<int>(new DeepPointer("ManiaPlanet.exe", (int)RaceStateAddr, 0xC, 0x2D8, 0x104, 0xDC, 0x108));
 			vars.GameInfo = new StringWatcher(new DeepPointer("ManiaPlanet.exe", 0x017F5448, 0x20, 0x240, 0x0), ReadStringType.ASCII, 33);
 
 			vars.Watchers.Clear();
 			vars.Watchers.AddRange(new MemoryWatcher[]
 			{
 				vars.LoadingState,
-				vars.GameInfo,
-				vars.RaceState
+				vars.RaceState,
+				vars.GameInfo
 			});
 			vars.Watchers.UpdateAll(gameProc);
 			return true;
@@ -65,13 +65,27 @@ startup
 	vars.CompletedMaps = new List<string>();
 	vars.MapSplit = (Func<bool, bool>)((state) =>
 	{
-		if (state)
-			vars.CompletedMaps.Add(vars.CurrentMapName);
+		if (state) vars.CompletedMaps.Add(vars.CurrentMapName);
 		return state;
 	});
-	vars.GetFirstMap = (Func<string, string>)((categoryName) =>
+	vars.GetCategory = (Func<string>)(() =>
 	{
-		switch (categoryName)
+		switch (timer.Run.CategoryName)
+		{
+			case "All Flags":
+			case "White":
+			case "Green":
+			case "Blue":
+			case "Red":
+			case "Black":
+				return timer.Run.CategoryName;
+			default:
+				return "All Flags";
+		}
+	});
+	vars.GetFirstMap = (Func<string>)(() =>
+	{
+		switch (vars.GetCategory() as string)
 		{
 			case "All Flags":
 			case "White":
@@ -84,6 +98,7 @@ startup
 				return "[Game] init challenge '$fff$sD01'";
 			case "Black":
 				return "[Game] init challenge '$fff$sE01'";
+			// This should never happen but w/e
 			default:
 				return "[Game] init challenge '$fff$sA01'";
 		}
@@ -122,12 +137,6 @@ init
 update
 {
 	vars.Watchers.UpdateAll(game);
-	// Get category from Splits Editor
-	if ((timer.CurrentPhase == TimerPhase.NotRunning) && (vars.CategoryName != timer.Run.CategoryName))
-	{
-		vars.CategoryName = timer.Run.CategoryName;
-		vars.FirstMap = vars.GetFirstMap(vars.CategoryName);
-	}
 	if (vars.Init)
 	{
 		if ((vars.GameInfo.Old != null) && (vars.GameInfo.Current != null))
@@ -135,6 +144,7 @@ update
 			vars.OldMapName = vars.CurrentMapName;
 			if (vars.GameInfo.Current != vars.GameInfo.Old)
 			{
+				print("[ASL] GameInfo Changed! (" + vars.GameInfo.Current + ")");
 				if (vars.GameInfo.Current.StartsWith("[Game] init challenge"))
 					vars.CurrentMapName = vars.GameInfo.Current;
 				else if ((vars.GameInfo.Current.StartsWith("[Game] main menu")) || (vars.GameInfo.Current.StartsWith("Script 'Media/Apps/MainMenu")))
@@ -142,7 +152,10 @@ update
 			}
 			// Scan again when title pack has loaded
 			if ((vars.GameInfo.Old.StartsWith("[Game] Loading title")) && (vars.GameInfo.Current.StartsWith("[Game] main menu")))
+			{
+				print("[ASL] Rescan!");
 				vars.GameRestart = !vars.TryInit(game, vars.Module);
+			}
 		}
 	}
 	else if ((vars.TryInit(game, vars.Module)) && (vars.GameInfo.Current != null))
@@ -151,17 +164,19 @@ update
 
 isLoading
 {
+	if (vars.LoadingState.Current != vars.LoadingState.Old)
+		print("[ASL] Loading Changed!");
 	return (vars.LoadingState.Current) || (!vars.Init) || (vars.GameRestart);
 }
 
 start
 {
-	return (vars.LoadingState.Old) && (!vars.LoadingState.Current) && (vars.CurrentMapName == vars.FirstMap);
+	return (vars.LoadingState.Old) && (!vars.LoadingState.Current) && (vars.CurrentMapName == vars.GetFirstMap());
 }
 
 reset
 {
-	if ((vars.OldMapName == vars.CurrentMapName) || (vars.CurrentMapName != vars.FirstMap))
+	if ((vars.OldMapName == vars.CurrentMapName) || (vars.CurrentMapName != vars.GetFirstMap()))
 		return false;
 	vars.CompletedMaps.Clear();
 	return true;
@@ -178,12 +193,13 @@ split
 	// Finish line
 	if ((vars.RaceState.Old == 1) && (vars.RaceState.Current == 2) && (!vars.LoadingState.Current) && (!vars.CompletedMaps.Contains(vars.CurrentMapName)))
 	{
+		print("[ASL] Detected Finish!");
 		// End of any map
 		if (settings[vars.CurrentMapName])
 			return vars.MapSplit(true);
 
 		// End of category
-		switch (vars.CategoryName as string)
+		switch (vars.GetCategory() as string)
 		{
 			case "White":
 				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sA15'");
