@@ -8,12 +8,10 @@
 startup
 {
 	// Memory stuff
-	vars.GameRestart = false;
-	vars.GameInfo = string.Empty;
 	vars.Watchers = new MemoryWatcherList();
 	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
 	vars.RaceState = new MemoryWatcher<int>(IntPtr.Zero);
-	vars.GameInfo = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
+	vars.LoadMap = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
 	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
 	{
 		print("[ASL] Scanning!");
@@ -46,28 +44,23 @@ startup
 			print("[ASL] Scan Completed!");
 			vars.LoadingState = new MemoryWatcher<bool>(LoadingAddr);
 			vars.RaceState = new MemoryWatcher<int>(new DeepPointer("ManiaPlanet.exe", (int)RaceStateAddr, 0xC, 0x2D8, 0x104, 0xDC, 0x108));
-			vars.GameInfo = new StringWatcher(new DeepPointer("ManiaPlanet.exe", 0x017F5448, 0x20, 0x240, 0x0), ReadStringType.ASCII, 33);
+			vars.LoadMap = new StringWatcher(new DeepPointer("ManiaPlanet.exe", 0x017B1858, 0x0), 64);
 
 			vars.Watchers.Clear();
 			vars.Watchers.AddRange(new MemoryWatcher[]
 			{
 				vars.LoadingState,
 				vars.RaceState,
-				vars.GameInfo
+				vars.LoadMap
 			});
 			vars.Watchers.UpdateAll(gameProc);
+			print("[ASL] " + vars.LoadMap.Current);
 			return true;
 		}
 		return false;
 	});
 
 	// Used for splitting
-	vars.CompletedMaps = new List<string>();
-	vars.MapSplit = (Func<bool, bool>)((state) =>
-	{
-		if (state) vars.CompletedMaps.Add(vars.CurrentMapName);
-		return state;
-	});
 	vars.GetCategory = (Func<string>)(() =>
 	{
 		switch (timer.Run.CategoryName)
@@ -89,26 +82,25 @@ startup
 		{
 			case "All Flags":
 			case "White":
-				return "[Game] init challenge '$fff$sA01'";
+				return "LoadMap '$fff$sA01'";
 			case "Green":
-				return "[Game] init challenge '$fff$sB01'";
+				return "LoadMap '$fff$sB01'";
 			case "Blue":
-				return "[Game] init challenge '$fff$sC01'";
+				return "LoadMap '$fff$sC01'";
 			case "Red":
-				return "[Game] init challenge '$fff$sD01'";
+				return "LoadMap '$fff$sD01'";
 			case "Black":
-				return "[Game] init challenge '$fff$sE01'";
+				return "LoadMap '$fff$sE01'";
 			// This should never happen but w/e
 			default:
-				return "[Game] init challenge '$fff$sA01'";
+				return "LoadMap '$fff$sA01'";
 		}
 	});
 
 	// Settings
-	settings.Add("SplitOnMapChange", false, "Auto split on map change:");
-	settings.Add("SplitOnMapExit", false, "When leaving a map.", "SplitOnMapChange");
-	settings.Add("SplitOnMapLoad", false, "When entering a map.", "SplitOnMapChange");
+	settings.Add("SplitOnMapChange", false, "Auto split on map change.");
 	settings.Add("SplitOnMapFinish", true, "Auto split when finishing a map.");
+	settings.Add("SmartSplit", false, "Auto split detection for unofficial maps.");
 
 	// Generate map list + settings
 	vars.Maps = new List<string>();
@@ -118,9 +110,9 @@ startup
 		{
 			if ((j > 5) && (i == 4))
 				goto done;
-			var map = string.Format("[Game] init challenge '$fff$s{0}{1}'", (char)(i + 65), j.ToString("D2"));
+			var map = string.Format("LoadMap '$fff$s{0}{1}'", (char)(i + 65), j.ToString("D2"));
 			vars.Maps.Add(map);
-			settings.Add(map, true, map.Substring(29, 3), "SplitOnMapFinish");
+			settings.Add(map, true, map.Substring(15, 3), "SplitOnMapFinish");
 		}
 	}
 done:
@@ -130,8 +122,7 @@ init
 {
 	vars.Init = false;
 	vars.Module = modules.First();
-	vars.OldMapName = string.Empty;
-	vars.CurrentMapName = string.Empty;
+	timer.IsGameTimePaused = false;
 }
 
 update
@@ -139,79 +130,57 @@ update
 	vars.Watchers.UpdateAll(game);
 	if (vars.Init)
 	{
-		if ((vars.GameInfo.Old != null) && (vars.GameInfo.Current != null))
-		{
-			vars.OldMapName = vars.CurrentMapName;
-			if (vars.GameInfo.Current != vars.GameInfo.Old)
-			{
-				print("[ASL] GameInfo Changed! (" + vars.GameInfo.Current + ")");
-				if (vars.GameInfo.Current.StartsWith("[Game] init challenge"))
-					vars.CurrentMapName = vars.GameInfo.Current;
-				else if ((vars.GameInfo.Current.StartsWith("[Game] main menu")) || (vars.GameInfo.Current.StartsWith("Script 'Media/Apps/MainMenu")))
-					vars.CurrentMapName = "[Game] main menu";
-			}
-			// Scan again when title pack has loaded
-			if ((vars.GameInfo.Old.StartsWith("[Game] Loading title")) && (vars.GameInfo.Current.StartsWith("[Game] main menu")))
-			{
-				print("[ASL] Rescan!");
-				vars.GameRestart = !vars.TryInit(game, vars.Module);
-			}
-		}
+		if (vars.LoadMap.Current != vars.LoadMap.Old)
+			print("[ASL] LoadMap Changed! (" + vars.LoadMap.Current + ")");
 	}
-	else if ((vars.TryInit(game, vars.Module)) && (vars.GameInfo.Current != null))
-		vars.Init = (vars.GameInfo.Current.StartsWith("[Game]")) || (vars.GameInfo.Current.StartsWith("Script"));
+	else
+		vars.Init = vars.TryInit(game, vars.Module);
 }
 
 isLoading
 {
 	if (vars.LoadingState.Current != vars.LoadingState.Old)
 		print("[ASL] Loading Changed!");
-	return (vars.LoadingState.Current) || (!vars.Init) || (vars.GameRestart);
+	return (vars.LoadingState.Current) || (!vars.Init);
 }
 
 start
 {
-	return (vars.LoadingState.Old) && (!vars.LoadingState.Current) && (vars.CurrentMapName == vars.GetFirstMap());
-}
-
-reset
-{
-	if ((vars.OldMapName == vars.CurrentMapName) || (vars.CurrentMapName != vars.GetFirstMap()))
-		return false;
-	vars.CompletedMaps.Clear();
-	return true;
+	return (vars.LoadingState.Old)
+		&& (!vars.LoadingState.Current)
+		&& ((vars.LoadMap.Current == vars.GetFirstMap()) || settings["SmartSplit"]);
 }
 
 split
 {
 	// Map change
-	if ((settings["SplitOnMapExit"]) && (vars.CurrentMapName.StartsWith("[Game] main menu")) && (vars.OldMapName.StartsWith("[Game] init challenge")))
+	if ((settings["SplitOnMapChange"]) && (vars.LoadMap.Old != vars.LoadMap.Current))
 		return true;
-	if ((settings["SplitOnMapLoad"]) && (vars.OldMapName.StartsWith("[Game] main menu")) && (vars.CurrentMapName.StartsWith("[Game] init challenge")))
-		return true;
-
+		
 	// Finish line
-	if ((vars.RaceState.Old == 1) && (vars.RaceState.Current == 2) && (!vars.LoadingState.Current) && (!vars.CompletedMaps.Contains(vars.CurrentMapName)))
+	if ((vars.RaceState.Old == 1) && (vars.RaceState.Current == 2) && (!vars.LoadingState.Current))
 	{
 		print("[ASL] Detected Finish!");
-		// End of any map
-		if (settings[vars.CurrentMapName])
-			return vars.MapSplit(true);
+		// End of nadeo map
+		if (settings[vars.LoadMap.Current])
+			return true;
+		else if (settings["SmartSplit"])
+			return true;
 
 		// End of category
 		switch (vars.GetCategory() as string)
 		{
 			case "White":
-				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sA15'");
+				return vars.LoadMap.Current == "LoadMap '$fff$sA15'";
 			case "Green":
-				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sB15'");
+				return vars.LoadMap.Current == "LoadMap '$fff$sB15'";
 			case "Blue":
-				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sC15'");
+				return vars.LoadMap.Current == "LoadMap '$fff$sC15'";
 			case "Red":
-				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sD15'");
+				return vars.LoadMap.Current == "LoadMap '$fff$sD15'";
 			case "Black":
 			case "All Flags":
-				return vars.MapSplit(vars.CurrentMapName == "[Game] init challenge '$fff$sE05'");
+				return vars.LoadMap.Current == "LoadMap '$fff$sE05'";
 		}
 	}
 	return false;
@@ -220,5 +189,4 @@ split
 exit
 {
 	timer.IsGameTimePaused = true;
-	vars.GameRestart = true;
 }
