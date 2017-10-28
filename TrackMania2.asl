@@ -11,8 +11,8 @@ startup
 	vars.Watchers = new MemoryWatcherList();
 	vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
 	vars.RaceState = new MemoryWatcher<int>(IntPtr.Zero);
-	vars.LoadMap = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
-	vars.GameInfo = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 33);
+	vars.LoadMap = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 128);	// TODO: Find out real max length
+	vars.GameInfo = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 128);
 	
 	vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
 	{
@@ -55,8 +55,8 @@ startup
 			print("[ASL] Scan Completed!");
 			vars.LoadingState = new MemoryWatcher<bool>(LoadingAddr);
 			vars.RaceState = new MemoryWatcher<int>(new DeepPointer("ManiaPlanet.exe", (int)RaceStateAddr, 0xC, 0x2D8, 0x104, 0xDC, 0x108));
-			vars.LoadMap = new StringWatcher(new DeepPointer("ManiaPlanet.exe", 0x017B1858, 0x0), 64);
-			vars.GameInfo = new StringWatcher(GameInfoAddr, ReadStringType.ASCII, 33);
+			vars.LoadMap = new StringWatcher(new DeepPointer("ManiaPlanet.exe", 0x017B1858, 0x0), 128);
+			vars.GameInfo = new StringWatcher(GameInfoAddr, ReadStringType.ASCII, 128);
 			
 			vars.Watchers.Clear();
 			vars.Watchers.AddRange(new MemoryWatcher[]
@@ -139,6 +139,7 @@ init
 {
 	vars.Init = false;
 	vars.Module = modules.First();
+	print("[ASL] Module = " + vars.Module.ModuleName.ToString());
 }
 
 update
@@ -147,20 +148,24 @@ update
 	if (vars.Init)
 	{
 		// Rescan when titlepack is loading
-		if (vars.GameInfo.Current.StartsWith("[Maniaplanet]"))
+		if ((string.IsNullOrEmpty(vars.GameInfo.Current))
+			|| (vars.GameInfo.Current.StartsWith("[Maniaplanet]"))
+			|| (vars.GameInfo.Current.StartsWith("[Game] exec MenuResult: 58"))
+			|| (vars.GameInfo.Current.Contains("loading title")))
 		{
-			print("[ASL] TP Scan!");
-			vars.Init = vars.TryInit(game, vars.Module);
+			print("[ASL] TP Rescan!");
+			vars.TryInit(game, vars.Module);
 		}
 		
 		// Unpause timer when titlepack has loaded
 		if (vars.GameRestart)
 		{
-			vars.GameRestart = (vars.GameInfo.Current.StartsWith("[Game] main menu")) && (vars.GameInfo.Old.StartsWith("[Game] Loading title"));
-			if (!vars.GameRestart)
+			if ((vars.GameInfo.Current.StartsWith("[Game] main menu"))
+				&& (vars.GameInfo.Old.StartsWith("[Game] Loading title")))
 			{
-				timer.IsGameTimePaused = false;
 				print("[ASL] Unpaused GameTime!");
+				vars.GameRestart = false;
+				timer.IsGameTimePaused = false;
 			}
 		}
 		
@@ -174,16 +179,11 @@ update
 	}
 	else if (vars.GameRestart)
 	{
-		// Scan until titlepack has loaded
+		// Rescan until titlepack has loaded
 		if (!vars.GameInfo.Current.StartsWith("[Maniaplanet]"))
 		{
 			print("[ASL] GameRestart Scan!");
-			vars.TryInit(game, vars.Module);
-		}
-		else
-		{
-			vars.Init = true;
-			vars.GameRestart = false;
+			vars.Init = vars.TryInit(game, vars.Module);
 		}
 	}
 	else
@@ -195,16 +195,20 @@ update
 
 isLoading
 {
-	return (vars.LoadingState.Current) || (!vars.Init);
+	return (vars.LoadingState.Current) || (!vars.Init) || (vars.GameRestart);
 }
 
 start
 {
 	if ((vars.LoadingState.Old) && (!vars.LoadingState.Current))
 	{
-		if ((vars.LoadMap.Current == vars.GetFirstMap()) || (settings["SmartSplit"]))
+		if ((vars.LoadMap.Current == vars.GetFirstMap()) && (!settings["SmartSplit"]))
+			return true;
+		
+		// Used for SmartSplit auto reset
+		if (settings["SmartSplit"])
 		{
-			// Used for SmartSplit auto reset
+			print("[ASL] StartedMap = " + vars.LoadMap.Current);
 			vars.StartedMap = vars.LoadMap.Current;
 			return true;
 		}
@@ -218,12 +222,13 @@ reset
 	if ((vars.GameInfo.Old != vars.GameInfo.Current) && (vars.GameInfo.Current.StartsWith("[Game] init challenge")))
 	{
 		var loadmap = vars.GameInfo.Current.Replace("[Game] init challenge", "LoadMap");
-		if (loadmap == vars.GetFirstMap())
+		if ((loadmap.StartsWith(vars.GetFirstMap())) && (!settings["SmartSplit"]))
 			return true;
-			
+		
 		// Auto reset for unofficial maps, started map should be saved since auto start
-		if ((settings["SmartSplit"]) && (loadmap == vars.StartedMap))
+		if ((settings["SmartSplit"]) && (loadmap.StartsWith(vars.StartedMap)))
 		{
+			print("[ASL] Cleared StartedMap!");
 			vars.StartedMap = string.Empty;
 			return true;
 		}
