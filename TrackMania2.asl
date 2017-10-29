@@ -113,8 +113,8 @@ startup
 
 	// Settings
 	settings.Add("SplitOnMapChange", false, "Auto split on map change.");
-	settings.Add("SplitOnMapFinish", true, "Auto split when finishing a map.");
 	settings.Add("SmartSplit", false, "Auto split detection for unofficial maps.");
+	settings.Add("SplitOnMapFinish", true, "Auto split when finishing a map.");
 	
 	for (int i = 0; i < 5; i++)
 	{
