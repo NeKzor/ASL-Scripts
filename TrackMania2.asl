@@ -138,7 +138,7 @@ done:
 init
 {
 	vars.Init = false;
-	vars.Module = modules.First();
+	vars.Module = modules.First(module => module.ModuleName == "ManiaPlanet.exe");
 	print("[ASL] Module = " + vars.Module.ModuleName.ToString());
 }
 
