@@ -7,81 +7,67 @@ startup
 {
     // Memory stuff
     vars.Watchers = new MemoryWatcherList();
-    vars.LoadingState = new MemoryWatcher<bool>(IntPtr.Zero);
-    vars.RaceState = new MemoryWatcher<int>(IntPtr.Zero);
-    vars.LoadMap = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 128);
-    vars.GameInfo = new StringWatcher(IntPtr.Zero, ReadStringType.ASCII, 128);
-
     vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
     {
         // \x83\x3D\x00\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00\x75\x08\x85\xC9 xx????xxx????xxxx
-        var LoadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00 8B 0D ?? ?? ?? ?? 75 08 85 C9");
+        var loadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00 8B 0D ?? ?? ?? ?? 75 08 85 C9");
 
         // \x56\x8B\xF1\xE8\x00\x00\x00\x00\x8B\x8E\x00\x00\x00\x00\x85\xC9\x74\x36 xxxx????xx????xxxx
-        var RaceStateTarget = new SigScanTarget(38, "56 8B F1 E8 ?? ?? ?? ?? 8B 8E ?? ?? ?? ?? 85 C9 74 36");
+        var raceStateTarget = new SigScanTarget(38, "56 8B F1 E8 ?? ?? ?? ?? 8B 8E ?? ?? ?? ?? 85 C9 74 36");
 
         // \x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00\x00\x50\x56\xA1\x00\x00\x00\x00\x33\xC4\x50\x8D\x44\x24\x08\x64\xA3\x00\x00\x00\x00\x8B\xF1\xA1\x00\x00\x00\x00\xA8\x01\x75\x3E xxx????xx????xxx????xxxxxxxxx????xxx????xxxx
-        var LoadMapTarget = new SigScanTarget(62, "6A FF 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 08 64 A3 ?? ?? ?? ?? 8B F1 A1 ?? ?? ?? ?? A8 01 75 3E");
+        var loadMapTarget = new SigScanTarget(62, "6A FF 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 08 64 A3 ?? ?? ?? ?? 8B F1 A1 ?? ?? ?? ?? A8 01 75 3E");
 
         // \xB9\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xC6\x44\x24\x00\x00\xC7\x44\x24\x00\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00 x????xx????????x????xxx??xxx?????xx????????
-        var GameInfoTarget = new SigScanTarget(1, "B9 ?? ?? ?? ?? C7 05 ?? ?? ?? ?? ?? ?? ?? ?? E8 ?? ?? ?? ?? C6 44 24 ?? ?? C7 44 24 ?? ?? ?? ?? ?? C7 05 ?? ?? ?? ?? ?? ?? ?? ??");
+        var gameInfoTarget = new SigScanTarget(1, "B9 ?? ?? ?? ?? C7 05 ?? ?? ?? ?? ?? ?? ?? ?? E8 ?? ?? ?? ?? C6 44 24 ?? ?? C7 44 24 ?? ?? ?? ?? ?? C7 05 ?? ?? ?? ?? ?? ?? ?? ??");
 
-        LoadingTarget.OnFound = (proc, _, ptr) =>
+        loadingTarget.OnFound = (proc, _, ptr) =>
         {
-            print("[ASL] LoadingTarget = 0x" + ptr.ToString("X"));
-            return proc.ReadPointer(ptr, out ptr)
-                ? ptr
-                : IntPtr.Zero;
+            print("[ASL] loadingTarget = 0x" + ptr.ToString("X"));
+            return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
         };
-        RaceStateTarget.OnFound = (proc, _, ptr) =>
+        raceStateTarget.OnFound = (proc, _, ptr) =>
         {
-            print("[ASL] RaceStateTarget = 0x" + ptr.ToString("X"));
-            return proc.ReadPointer(ptr, out ptr)
-                ? proc.ReadPointer(ptr, out ptr)
-                    ? proc.ReadPointer(ptr + 0x14, out ptr)
-                        ? ptr + 0xB4
-                        : IntPtr.Zero
-                    : IntPtr.Zero
-                : IntPtr.Zero;
+            print("[ASL] raceStateTarget = 0x" + ptr.ToString("X"));
+            return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
         };
-        LoadMapTarget.OnFound = (proc, _, ptr) =>
+        loadMapTarget.OnFound = (proc, _, ptr) =>
         {
-            print("[ASL] LoadMapTarget = 0x" + ptr.ToString("X"));
-            return proc.ReadPointer(ptr, out ptr)
-                ? ptr
-                : IntPtr.Zero;
+            print("[ASL] loadMapTarget = 0x" + ptr.ToString("X"));
+            return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
         };
-        GameInfoTarget.OnFound = (proc, _, ptr) =>
+        gameInfoTarget.OnFound = (proc, _, ptr) =>
         {
-            print("[ASL] GameInfoTarget = 0x" + ptr.ToString("X"));
-            return proc.ReadPointer(ptr, out ptr)
-                ? proc.ReadPointer(ptr, out ptr)
-                    ? ptr
-                    : IntPtr.Zero
-                : IntPtr.Zero;
+            print("[ASL] gameInfoTarget = 0x" + ptr.ToString("X"));
+            return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
         };
 
-        var Scanner = new SignatureScanner(gameProc, module.BaseAddress, module.ModuleMemorySize);
-        var LoadingAddr = Scanner.Scan(LoadingTarget);
-        var RaceStateAddr = Scanner.Scan(RaceStateTarget);
-        var LoadMapAddr = Scanner.Scan(LoadMapTarget);
-        var GameInfoAddr = Scanner.Scan(GameInfoTarget);
+        var scanner = new SignatureScanner(gameProc, module.BaseAddress, module.ModuleMemorySize);
+        var loadingPtr = scanner.Scan(loadingTarget);
+        var raceStatePtr = scanner.Scan(raceStateTarget);
+        var loadMapPtr = scanner.Scan(loadMapTarget);
+        var gameInfoPtr = scanner.Scan(gameInfoTarget);
 
-        print("[ASL] LoadingAddr = 0x" + LoadingAddr.ToString("X"));
-        print("[ASL] RaceStateAddr = 0x" + RaceStateAddr.ToString("X"));
-        print("[ASL] LoadMapAddr = 0x" + LoadMapAddr.ToString("X"));
-        print("[ASL] GameInfoAddr = 0x" + GameInfoAddr.ToString("X"));
+        print("[ASL] loadingPtr = 0x" + loadingPtr.ToString("X"));
+        print("[ASL] raceStatePtr = 0x" + raceStatePtr.ToString("X"));
+        print("[ASL] loadMapPtr = 0x" + loadMapPtr.ToString("X"));
+        print("[ASL] gameInfoPtr = 0x" + gameInfoPtr.ToString("X"));
 
-        if ((LoadingAddr != IntPtr.Zero)
-            && (RaceStateAddr != IntPtr.Zero)
-            && (LoadMapAddr != IntPtr.Zero)
-            && (GameInfoAddr != IntPtr.Zero))
+        if ((loadingPtr != IntPtr.Zero)
+            && (raceStatePtr != IntPtr.Zero)
+            && (loadMapPtr != IntPtr.Zero)
+            && (gameInfoPtr != IntPtr.Zero))
         {
             print("[ASL] Scan Completed!");
-            vars.LoadingState = new MemoryWatcher<bool>(LoadingAddr);
-            vars.RaceState = new MemoryWatcher<int>(RaceStateAddr);
-            vars.LoadMap = new StringWatcher(new DeepPointer(module.ModuleName, (int)LoadMapAddr - (int)module.BaseAddress, 0x0), ReadStringType.ASCII, 128);
-            vars.GameInfo = new StringWatcher(GameInfoAddr, ReadStringType.ASCII, 128);
+
+            var dpRaceState = new DeepPointer(module.ModuleName, (int)raceStatePtr - (int)module.BaseAddress, 20, 180);
+            var dpLoadMap = new DeepPointer(module.ModuleName, (int)loadMapPtr - (int)module.BaseAddress, 0);
+            var dpGameInfo = new DeepPointer(module.ModuleName, (int)gameInfoPtr - (int)module.BaseAddress, 0);
+
+            vars.LoadingState = new MemoryWatcher<bool>(loadingPtr);
+            vars.RaceState = new MemoryWatcher<int>(dpRaceState);
+            vars.LoadMap = new StringWatcher(dpLoadMap, ReadStringType.ASCII, 128);
+            vars.GameInfo = new StringWatcher(dpGameInfo, ReadStringType.ASCII, 128);
 
             vars.Watchers.Clear();
             vars.Watchers.AddRange(new MemoryWatcher[]
@@ -92,10 +78,11 @@ startup
                 vars.GameInfo
             });
             vars.Watchers.UpdateAll(gameProc);
-            //print("[ASL] LoadingState = " + vars.LoadingState.Current);
-            //print("[ASL] RaceState = " + vars.ERaceState[vars.RaceState.Current]);
-            //print("[ASL] LoadMap = " + vars.LoadMap.Current);
-            //print("[ASL] GameInfo = " + vars.GameInfo.Current);
+
+            print("[ASL] LoadingState = " + vars.LoadingState.Current);
+            print("[ASL] RaceState = " + vars.ERaceState[vars.RaceState.Current]);
+            print("[ASL] LoadMap = " + vars.LoadMap.Current);
+            print("[ASL] GameInfo = " + vars.GameInfo.Current);
             return true;
         }
         print("[ASL] Scan Failed!"); 
@@ -140,7 +127,6 @@ startup
                 return "LoadMap '$fff$sD01'";
             case "Black":
                 return "LoadMap '$fff$sE01'";
-            // This should never happen but w/e
             default:
                 return "LoadMap '$fff$sA01'";
         }
