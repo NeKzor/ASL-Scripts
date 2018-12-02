@@ -1,6 +1,11 @@
-﻿state("ManiaPlanet")
+﻿// Report issues here: https://github.com/NeKzor/ASL-Scripts/issues
+
+state("ManiaPlanet")
 {
-    // https://github.com/NeKzor/ASL-Scripts/issues
+}
+
+state("ManiaPlanet32")
+{
 }
 
 startup
@@ -9,36 +14,64 @@ startup
     vars.Watchers = new MemoryWatcherList();
     vars.TryInit = (Func<Process, ProcessModuleWow64Safe, bool>)((gameProc, module) =>
     {
-        // \x83\x3D\x00\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00\x75\x08\x85\xC9 xx????xxx????xxxx
-        var loadingTarget = new SigScanTarget(9, "83 3D ?? ?? ?? ?? 00 8B 0D ?? ?? ?? ?? 75 08 85 C9");
+        // 0x140ADF9A0, 0xE02800
+        var loadingTarget = (gameProc.Is64Bit())
+            ? new SigScanTarget(9, "83 3D ?? ?? ?? ?? ?? 8B 05 ?? ?? ?? ??")
+            : new SigScanTarget(9, "51 83 3D ?? ?? ?? ?? ?? A1 ?? ?? ?? ??");
 
-        // \x56\x8B\xF1\xE8\x00\x00\x00\x00\x8B\x8E\x00\x00\x00\x00\x85\xC9\x74\x36 xxxx????xx????xxxx
-        var raceStateTarget = new SigScanTarget(38, "56 8B F1 E8 ?? ?? ?? ?? 8B 8E ?? ?? ?? ?? 85 C9 74 36");
+        // 0x14097DA40, 0x1145C00
+        var raceStateTarget = (gameProc.Is64Bit())
+            ? new SigScanTarget(9, "40 53 48 83 EC 20 48 8B 05 ?? ?? ?? ?? 48 8B 58 28 48 85 DB 74 67")
+            : new SigScanTarget(38, "56 8B F1 E8 ?? ?? ?? ?? 8B 8E ?? ?? ?? ?? 85 C9 74 36");
 
-        // \x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00\x00\x50\x56\xA1\x00\x00\x00\x00\x33\xC4\x50\x8D\x44\x24\x08\x64\xA3\x00\x00\x00\x00\x8B\xF1\xA1\x00\x00\x00\x00\xA8\x01\x75\x3E xxx????xx????xxx????xxxxxxxxx????xxx????xxxx
-        var loadMapTarget = new SigScanTarget(62, "6A FF 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 56 A1 ?? ?? ?? ?? 33 C4 50 8D 44 24 08 64 A3 ?? ?? ?? ?? 8B F1 A1 ?? ?? ?? ?? A8 01 75 3E");
+        // 0x14014D770, 0x52F3F0
+        var loadMapTarget = (gameProc.Is64Bit())
+            ? new SigScanTarget(52, "40 53 48 83 EC 30 48 C7 44 24 ?? ?? ?? ?? ?? 48 8B D9 B9 ?? ?? ?? ?? 65 48 8B 04 25 ?? ?? ?? ?? 48 8B 10 8B 04 11 39 05 ?? ?? ?? ?? 7F 23")
+            : new SigScanTarget(59, "55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 ?? ?? ?? ?? 50 A1 ?? ?? ?? ?? 51 33 C5 50 8D 45 F4 64 A3 ?? ?? ?? ?? 64 A1 ?? ?? ?? ??");
 
-        // \xB9\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xC6\x44\x24\x00\x00\xC7\x44\x24\x00\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00 x????xx????????x????xxx??xxx?????xx????????
-        var gameInfoTarget = new SigScanTarget(1, "B9 ?? ?? ?? ?? C7 05 ?? ?? ?? ?? ?? ?? ?? ?? E8 ?? ?? ?? ?? C6 44 24 ?? ?? C7 44 24 ?? ?? ?? ?? ?? C7 05 ?? ?? ?? ?? ?? ?? ?? ??");
+        // 0x14014F13E, 0x531163
+        var gameInfoTarget = (gameProc.Is64Bit())
+            ? new SigScanTarget(3, "48 89 05 ?? ?? ?? ?? 89 3D ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 90 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? E9 ?? ?? ?? ??")
+            : new SigScanTarget(1, "B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? A1 ?? ?? ?? ?? C6 04 38 00");
 
         loadingTarget.OnFound = (proc, _, ptr) =>
         {
             print("[ASL] loadingTarget = 0x" + ptr.ToString("X"));
+            if (proc.Is64Bit())
+            {
+                var temp = 0;
+                return proc.ReadValue<int>(ptr, out temp) ? (IntPtr)((long)temp + (long)ptr + 4) : IntPtr.Zero;
+            }
             return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
         };
         raceStateTarget.OnFound = (proc, _, ptr) =>
         {
             print("[ASL] raceStateTarget = 0x" + ptr.ToString("X"));
+            if (proc.Is64Bit())
+            {
+                var temp = 0;
+                return proc.ReadValue<int>(ptr, out temp) ? (IntPtr)((long)temp + (long)ptr + 4) : IntPtr.Zero;
+            }
             return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
         };
         loadMapTarget.OnFound = (proc, _, ptr) =>
         {
             print("[ASL] loadMapTarget = 0x" + ptr.ToString("X"));
+            if (proc.Is64Bit())
+            {
+                var temp = 0;
+                return proc.ReadValue<int>(ptr, out temp) ? (IntPtr)((long)temp + (long)ptr + 4) : IntPtr.Zero;
+            }
             return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
         };
         gameInfoTarget.OnFound = (proc, _, ptr) =>
         {
             print("[ASL] gameInfoTarget = 0x" + ptr.ToString("X"));
+            if (proc.Is64Bit())
+            {
+                var temp = 0;
+                return proc.ReadValue<int>(ptr, out temp) ? (IntPtr)((long)temp + (long)ptr + 4) : IntPtr.Zero;
+            }
             return proc.ReadPointer(ptr, out ptr) ? ptr : IntPtr.Zero;
         };
 
@@ -60,9 +93,11 @@ startup
         {
             print("[ASL] Scan Completed!");
 
-            var dpRaceState = new DeepPointer(module.ModuleName, (int)raceStatePtr - (int)module.BaseAddress, 20, 180);
-            var dpLoadMap = new DeepPointer(module.ModuleName, (int)loadMapPtr - (int)module.BaseAddress, 0);
-            var dpGameInfo = new DeepPointer(module.ModuleName, (int)gameInfoPtr - (int)module.BaseAddress, 0);
+            var dpRaceState = (gameProc.Is64Bit())
+                ? new DeepPointer(module.ModuleName, (int)((long)raceStatePtr - (long)module.BaseAddress), 40, 216)
+                : new DeepPointer(module.ModuleName, (int)((long)raceStatePtr - (long)module.BaseAddress), 20, 180);
+            var dpLoadMap = new DeepPointer(module.ModuleName, (int)((long)loadMapPtr - (long)module.BaseAddress), 0);
+            var dpGameInfo = new DeepPointer(module.ModuleName, (int)((long)gameInfoPtr - (long)module.BaseAddress), 0);
 
             vars.LoadingState = new MemoryWatcher<bool>(loadingPtr);
             vars.RaceState = new MemoryWatcher<int>(dpRaceState);
@@ -159,7 +194,7 @@ done:
 init
 {
     vars.Init = false;
-    vars.Module = modules.First(module => module.ModuleName == "ManiaPlanet.exe");
+    vars.Module = modules.First(module => module.ModuleName == ((game.Is64Bit()) ? "ManiaPlanet.exe" : "ManiaPlanet32.exe"));
 }
 
 update
