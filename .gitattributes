@@ -1,0 +1,2 @@
+*.asl linguist-language=csharp
+scripts/* linguist-vendored=true
