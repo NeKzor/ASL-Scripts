@@ -94,8 +94,8 @@ startup
             print("[ASL] Scan Completed!");
 
             var dpRaceState = (gameProc.Is64Bit())
-                ? new DeepPointer(module.ModuleName, (int)((long)raceStatePtr - (long)module.BaseAddress), 40, 216)
-                : new DeepPointer(module.ModuleName, (int)((long)raceStatePtr - (long)module.BaseAddress), 20, 180);
+                ? new DeepPointer(module.ModuleName, (int)((long)raceStatePtr - (long)module.BaseAddress), 40, 232)
+                : new DeepPointer(module.ModuleName, (int)((long)raceStatePtr - (long)module.BaseAddress), 20, 196);
             var dpLoadMap = new DeepPointer(module.ModuleName, (int)((long)loadMapPtr - (long)module.BaseAddress), 0);
             var dpGameInfo = new DeepPointer(module.ModuleName, (int)((long)gameInfoPtr - (long)module.BaseAddress), 0);
 
